@@ -1,7 +1,10 @@
-import { Nav } from 'react-bootstrap'
+import { useState } from 'react'
+import { Nav, Button } from 'react-bootstrap'
 import './App.css'
 
 function App() {
+  const [message, setMessage] = useState('')
+
   return (
     <div className="app">
       <nav className="sidebar bg-light border-end">
@@ -18,6 +21,16 @@ function App() {
         <div className="page">
           <h1>Welcome to the Travel Planner</h1>
           <p>Use this space to build your itinerary, explore destinations, and plan your next trip.</p>
+          <div className="chat-container">
+            <input
+              className="chat-input"
+              type="text"
+              placeholder="Explain your trip..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+            <button className="submit">Send</button>
+          </div>
         </div>
       </main>
     </div>
@@ -25,3 +38,4 @@ function App() {
 }
 
 export default App
+
