@@ -1,14 +1,18 @@
 import { useState } from 'react'
 import { Button } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { registerUser } from './firebase'
 import './auth.css'
 
 function Register(){
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  const [submitError, setSubmitError] = useState('')
+  const [submitSuccess, setSubmitSuccess] = useState('')
 
   const isValidEmail = (value) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
@@ -34,7 +38,7 @@ function Register(){
     return ''
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
 
     if (!isValidEmail(email)) {
@@ -55,8 +59,23 @@ function Register(){
 
     setEmailError('')
     setPasswordError('')
-    // TODO: add registration logic (e.g., Firebase createUserWithEmailAndPassword)
-    console.log('register', { email, password })
+    setSubmitError('')
+    setSubmitSuccess('')
+
+    try {
+      await registerUser(email, password)
+      setSubmitSuccess('Account created! Redirecting to login...')
+      setTimeout(() => navigate('/login'), 1200)
+    } catch (error) {
+      // Firebase error codes: https://firebase.google.com/docs/auth/admin/errors
+      const message =
+        error?.code === 'auth/email-already-in-use'
+          ? 'An account with this email already exists.'
+          : error?.code === 'auth/weak-password'
+          ? 'The password is too weak. Please choose a stronger one.'
+          : error?.message || 'Unable to create account. Please try again.'
+      setSubmitError(message)
+    }
   }
 
   return (
@@ -95,6 +114,8 @@ function Register(){
             required
           />
           {passwordError && <div className="text-danger" style={{ fontSize: '0.85rem' }}>{passwordError}</div>}
+          {submitError && <div className="text-danger" style={{ fontSize: '0.85rem' }}>{submitError}</div>}
+          {submitSuccess && <div className="text-success" style={{ fontSize: '0.85rem' }}>{submitSuccess}</div>}
 
           <Button type="submit" className="auth-button auth-button-primary" variant="primary">
             Register

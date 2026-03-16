@@ -1,16 +1,33 @@
 import { useState } from 'react'
 import { Button } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { loginUser } from './firebase'
 import './auth.css'
 
 function Login(){
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loginError, setLoginError] = useState('')
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    // TODO: add authentication logic (e.g., Firebase sign-in)
-    console.log('login', { email, password })
+    setLoginError('')
+
+    try {
+      await loginUser(email, password)
+      navigate('/')
+    } catch (error) {
+      const message =
+        error?.code === 'auth/user-not-found'
+          ? 'No account found with this email.'
+          : error?.code === 'auth/wrong-password'
+          ? 'Incorrect password. Please try again.'
+          : error?.code === 'auth/too-many-requests'
+          ? 'Too many attempts. Please try again later.'
+          : error?.message || 'Unable to login. Please try again.'
+      setLoginError(message)
+    }
   }
 
   return (
@@ -39,6 +56,8 @@ function Login(){
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
+          {loginError && <div className="text-danger" style={{ fontSize: '0.85rem' }}>{loginError}</div>}
 
           <Button type="submit" className="auth-button auth-button-primary" variant="primary">
             Sign in
