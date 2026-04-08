@@ -3,6 +3,7 @@ import { Nav, Button } from 'react-bootstrap'
 import { Routes, Route, Link } from 'react-router-dom'
 import Login from './auth/Login'
 import Register from './auth/Register'
+import AboutUs from './aboutUs'
 import './App.css'
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Nav.Link as={Link} to="/">Home</Nav.Link>
           <Nav.Link as={Link} to="/login">Login</Nav.Link>
           <Nav.Link as={Link} to="/register">Register</Nav.Link>
+          <Nav.Link as={Link} to="/aboutUs">About Us</Nav.Link>
         </Nav>
       </nav>
 
@@ -42,6 +44,7 @@ function App() {
           } />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/aboutUs" element={<AboutUs />} />
         </Routes>
       </main>
     </div>
