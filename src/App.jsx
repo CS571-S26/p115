@@ -4,6 +4,7 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import Login from './auth/Login'
 import Register from './auth/Register'
 import Settings from './settings/Settings' 
+import AboutUs from './aboutUs'
 import './App.css'
 
 function App() {
@@ -17,12 +18,11 @@ function App() {
           <h2 className="h5 mb-1">Travel Planner</h2>
           <p className="mb-0 small" style={{ color: 'var(--text-muted)' }}>AI planning in the browser</p>
         </div>
-        
-        
         <Nav className="flex-column" activeKey={location.pathname}>
           <Nav.Link as={Link} to="/" eventKey="/">Home</Nav.Link>
           <Nav.Link as={Link} to="/login" eventKey="/login">Login</Nav.Link>
           <Nav.Link as={Link} to="/register" eventKey="/register">Register</Nav.Link>
+          <Nav.Link as={Link} to="/aboutUs">About Us</Nav.Link>
           <Nav.Link as={Link} to="/settings" eventKey="/settings">Settings</Nav.Link>
         </Nav>
       </nav>
@@ -47,6 +47,7 @@ function App() {
           } />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/aboutUs" element={<AboutUs />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>
