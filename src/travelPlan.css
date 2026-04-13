@@ -1,0 +1,77 @@
+.travel-plan-page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.travel-plan-container {
+  width: 100%;
+  max-width: 700px;
+}
+
+.travel-plan-container h1 {
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.travel-plan-container .subtitle {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+.travel-plan-card {
+  border: 1px solid var(--border) !important;
+  border-radius: 12px;
+  background: var(--card-bg) !important;
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.travel-plan-card .card-body {
+  padding: 2rem;
+}
+
+.form-label {
+  color: var(--text-main) !important;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.required {
+  color: #dc3545;
+}
+
+.form-input {
+  border: 1px solid var(--border) !important;
+  border-radius: 8px;
+  background: var(--input-bg) !important;
+  color: var(--text-main) !important;
+  padding: 0.75rem 1rem;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+.submit-btn {
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  border-radius: 8px;
+  background: var(--accent) !important;
+  border: none !important;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.submit-btn:hover {
+  opacity: 0.9;
+}

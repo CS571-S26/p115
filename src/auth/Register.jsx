@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Button } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
-import { registerUser } from './firebase'
+import { registerUser } from '../firebase.js'
 import './auth.css'
 
-function Register(){
+function Register({ onLogin }){
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -64,8 +64,8 @@ function Register(){
 
     try {
       await registerUser(email, password)
-      setSubmitSuccess('Account created! Redirecting to login...')
-      setTimeout(() => navigate('/login'), 1200)
+      onLogin()
+      navigate('/')
     } catch (error) {
       // Firebase error codes: https://firebase.google.com/docs/auth/admin/errors
       const message =

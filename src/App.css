@@ -37,6 +37,16 @@ body {
   display: flex;
 }
 
+.app.no-sidebar {
+  justify-content: center;
+  align-items: center;
+}
+
+.app.no-sidebar .content {
+  width: 100%;
+  padding: 3rem 2rem;
+}
+
 /* Sidebar */
 .sidebar {
   width: 260px;

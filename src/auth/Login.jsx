@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Button } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
-import { loginUser } from './firebase'
+import { loginUser } from '../firebase.js'
 import './auth.css'
 
-function Login(){
+function Login({ onLogin }){
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -16,6 +16,7 @@ function Login(){
 
     try {
       await loginUser(email, password)
+      onLogin()
       navigate('/')
     } catch (error) {
       const message =
