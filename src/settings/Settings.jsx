@@ -1,25 +1,11 @@
 import { useState } from "react";
+import { deleteAccount } from '../firebase.js'
+import { useNavigate } from "react-router-dom";
 
-function Settings({ user, onSave }) {
-  const [displayName, setDisplayName] = useState(user?.displayName || "");
-  const [preferredCurrency, setPreferredCurrency] = useState("USD");
+
+function Settings({ onLogout }) {
   const [darkMode, setDarkMode] = useState(document.body.classList.contains('dark-theme'));
-  const [saved, setSaved] = useState(false);
-
-
-  const updateSetting = (setter, key, value) => {
-    setter(value);
-    
-    const updatedPrefs = {
-      displayName,
-      preferredCurrency,
-      [key]: value
-    };
-
-    onSave?.(updatedPrefs);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1000);
-  };
+  const navigate = useNavigate()
 
   const toggleTheme = () => {
     const newMode = !darkMode;
@@ -27,11 +13,17 @@ function Settings({ user, onSave }) {
     document.body.classList.toggle('dark-theme');
   };
 
-  const handleDeleteAccount = () => {
-    if (window.confirm("Are you sure? This action is permanent.")) {
-      console.log("Account deleted");
+  const handleDeleteAccount = async () => {
+    if (window.confirm("Are you sure you want to delete your account? This action is permanent.")) {
+      try {
+        await deleteAccount()
+        onLogout()
+        navigate('/login')
+      } catch (error) {
+        alert(error?.message || 'Failed to delete account. Please try again.')
+      }
     }
-  };
+  }
 
   return (
     <div className="page">

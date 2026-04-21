@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app"
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser } from "firebase/auth"
 
 // Firebase configuration from environment variables
 const firebaseConfig = {
@@ -37,6 +37,16 @@ export const registerUser = (email, password) => {
  */
 export const loginUser = (email, password) => {
   return signInWithEmailAndPassword(auth, email, password)
+}
+
+/**
+ * Delete the account.
+ * @returns 
+ */
+export const deleteAccount = () => {
+  const user = auth.currentUser
+  if (!user) throw new Error('No user is currently signed in.')
+  return deleteUser(user)
 }
 
 

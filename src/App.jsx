@@ -89,7 +89,7 @@ function App() {
             <ProtectedRoute isLoggedIn={loggedIn} element={<AboutUs />} />
           } />
           <Route path="/settings" element={
-            <ProtectedRoute isLoggedIn={loggedIn} element={<Settings />} />
+            <ProtectedRoute isLoggedIn={loggedIn} element={<Settings onLogout={handleLogout} />} />
           } />
         </Routes>
       </main>
