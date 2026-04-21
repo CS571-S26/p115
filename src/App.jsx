@@ -15,14 +15,19 @@ function ProtectedRoute({ isLoggedIn, element }) {
 
 function App() {
   const [message, setMessage] = useState('')
-  const [loggedIn, setLoggedIn] = useState(false)
   const location = useLocation()
 
+  const [loggedIn, setLoggedIn] = useState(() => {
+    return localStorage.getItem('loggedIn') === 'true'
+  })
+  
   const handleLogin = () => {
+    localStorage.setItem('loggedIn', 'true')
     setLoggedIn(true)
   }
-
+  
   const handleLogout = () => {
+    localStorage.removeItem('loggedIn')
     setLoggedIn(false)
   }
 

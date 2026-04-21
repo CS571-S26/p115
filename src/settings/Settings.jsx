@@ -45,36 +45,6 @@ function Settings({ user, onSave }) {
           </div>
         </div>
 
-        <hr />
-
-        <div className="mb-3">
-          <label className="d-block mb-1 fw-bold">Display Name</label>
-          <input
-            className="chat-input w-100"
-            type="text"
-            value={displayName}
-            onChange={(e) => updateSetting(setDisplayName, 'displayName', e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="d-block mb-1 fw-bold">Currency</label>
-          <select
-            className="chat-input w-100"
-            value={preferredCurrency}
-            onChange={(e) => updateSetting(setPreferredCurrency, 'preferredCurrency', e.target.value)}
-          >
-            <option value="USD">USD ($)</option>
-            <option value="EUR">EUR (€)</option>
-            <option value="GBP">GBP (£)</option>
-            <option value="MXN">MXN (₱)</option>
-          </select>
-        </div>
-
-        <div style={{ height: '20px' }}>
-          {saved && <p className="text-success text-center small m-0">✓ Autosaved</p>}
-        </div>
-
         <div className="danger-zone">
           <button className="btn-delete" onClick={handleDeleteAccount}>
             Delete Account
