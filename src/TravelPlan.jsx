@@ -21,6 +21,7 @@ export default function TravelPlan() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState('')
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target

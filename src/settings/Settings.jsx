@@ -1,5 +1,6 @@
 import { deleteAccount } from '../firebase.js'
 import { useNavigate } from "react-router-dom";
+import './settings.css'
 
 function Settings({ onLogout }) {
   const navigate = useNavigate()
@@ -17,9 +18,8 @@ function Settings({ onLogout }) {
   }
 
   return (
-    <div className="page">
+    <div className="settings-page">
       <h1 className="text-center mb-4">Settings</h1>
-
       <div className="settings-card">
         <div className="danger-zone" style={{ marginTop: 0, paddingTop: 0, borderTop: 'none' }}>
           <button className="btn-delete" onClick={handleDeleteAccount}>
