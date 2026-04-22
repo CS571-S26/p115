@@ -5,7 +5,6 @@ import Login from './auth/Login'
 import Register from './auth/Register'
 import Settings from './settings/Settings'
 import AboutUs from './aboutUs'
-import TravelPlan from './TravelPlan'
 import Flights from './Planning/Flights'
 import Accommodations from './Planning/accommodations'
 import Activities from './Planning/Activities'
@@ -43,7 +42,6 @@ function App() {
           </div>
           <Nav className="topnav-links" activeKey={location.pathname}>
             <Nav.Link as={Link} to="/" eventKey="/">Home</Nav.Link>
-            <Nav.Link as={Link} to="/plan" eventKey="/plan">Plan a Trip</Nav.Link>
             <Nav.Link as={Link} to="/flights" eventKey="/flights">Flight Planner</Nav.Link>
             <Nav.Link as={Link} to="/accommodations" eventKey="/accommodations">Accommodations</Nav.Link>
             <Nav.Link as={Link} to="/activities" eventKey="/activities">Activities</Nav.Link>
@@ -67,9 +65,6 @@ function App() {
               isLoggedIn={loggedIn}
               element={<Home message={message} setMessage={setMessage} />}
             />
-          } />
-          <Route path="/plan" element={
-            <ProtectedRoute isLoggedIn={loggedIn} element={<TravelPlan />} />
           } />
           <Route path="/flights" element={
             <ProtectedRoute isLoggedIn={loggedIn} element={<Flights />} />
