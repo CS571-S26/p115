@@ -12,8 +12,28 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: radial-gradient(circle at top, rgba(13, 110, 253, 0.15), transparent 55%),
-    var(--auth-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1800&q=80');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+.auth-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+  pointer-events: none;
 }
 
 .auth-card {
@@ -24,6 +44,9 @@
   border: 1px solid var(--auth-border);
   background: var(--auth-card);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .auth-header {
