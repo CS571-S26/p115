@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { sendToOpenAI, createAccommodationPlanPrompt } from '../utils/openaiClient'
-import './accommodations.css'
+import { saveChat } from '../utils/savedChats'
+import './Accommodations.css'
 
-export default function Accommodation() {
+export default function accommodation() {
   const [formData, setFormData] = useState({
     destination: '',
     checkInDate: '',
@@ -15,9 +16,12 @@ export default function Accommodation() {
     amenities: '',
     preferences: ''
   })
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState('')
-  const [error, setError] = useState('')
+  const [loading, setLoading]             = useState(false)
+  const [result, setResult]               = useState('')
+  const [error, setError]                 = useState('')
+  const [showSave, setShowSave]           = useState(false)
+  const [saveName, setSaveName]           = useState('')
+  const [saveConfirmed, setSaveConfirmed] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -27,6 +31,8 @@ export default function Accommodation() {
   const handleSubmit = async () => {
     setError('')
     setResult('')
+    setShowSave(false)
+    setSaveConfirmed(false)
 
     const required = ['destination', 'checkInDate', 'checkOutDate', 'budgetPerNight']
     const missing = required.filter(f => !formData[f].trim())
@@ -40,11 +46,25 @@ export default function Accommodation() {
       const prompt = createAccommodationPlanPrompt(formData)
       const text = await sendToOpenAI(prompt)
       setResult(text)
+      setSaveName(`${formData.accommodationType} in ${formData.destination}`)
     } catch (err) {
       setError(err.message || 'Failed to get accommodation suggestions. Please try again.')
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSave = () => {
+    if (!saveName.trim()) return
+    saveChat({ name: saveName, type: 'accommodation', result, formData })
+    setSaveConfirmed(true)
+    setShowSave(false)
+  }
+
+  const handleReset = () => {
+    setResult('')
+    setShowSave(false)
+    setSaveConfirmed(false)
   }
 
   return (
@@ -66,7 +86,37 @@ export default function Accommodation() {
               <span>✦</span>
             </div>
             <div className="accom-result-body">{result}</div>
-            <button className="accom-reset" onClick={() => setResult('')}>Search Again</button>
+
+            {/* ── Save panel ── */}
+            <div className="result-save-panel">
+              {saveConfirmed ? (
+                <span className="save-confirmed">✓ Saved — find it under Saved Results</span>
+              ) : showSave ? (
+                <div className="save-input-row">
+                  <input
+                    className="save-name-input"
+                    type="text"
+                    placeholder="Name this result…"
+                    value={saveName}
+                    onChange={e => setSaveName(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSave()}
+                    autoFocus
+                  />
+                  <button className="save-confirm-btn" onClick={handleSave} disabled={!saveName.trim()}>
+                    Save
+                  </button>
+                  <button className="save-cancel-btn" onClick={() => setShowSave(false)}>
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button className="save-trigger-btn" onClick={() => setShowSave(true)}>
+                  🔖 Save Result
+                </button>
+              )}
+            </div>
+
+            <button className="accom-reset" onClick={handleReset}>Search Again</button>
           </div>
         )}
 

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { sendToOpenAI, createActivitiesPlanPrompt } from '../utils/openaiClient'
+import { saveChat } from '../utils/savedChats'
 import './activities.css'
 
 const ACTIVITY_TYPES = [
@@ -27,9 +28,12 @@ export default function Activities() {
     interests: '',
     specialRequirements: ''
   })
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState('')
-  const [error, setError] = useState('')
+  const [loading, setLoading]             = useState(false)
+  const [result, setResult]               = useState('')
+  const [error, setError]                 = useState('')
+  const [showSave, setShowSave]           = useState(false)
+  const [saveName, setSaveName]           = useState('')
+  const [saveConfirmed, setSaveConfirmed] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -48,6 +52,8 @@ export default function Activities() {
   const handleSubmit = async () => {
     setError('')
     setResult('')
+    setShowSave(false)
+    setSaveConfirmed(false)
 
     const required = ['destination', 'travelDates', 'budget']
     const missing = required.filter(f => !formData[f].trim())
@@ -61,11 +67,25 @@ export default function Activities() {
       const prompt = createActivitiesPlanPrompt(formData)
       const text = await sendToOpenAI(prompt)
       setResult(text)
+      setSaveName(`Activities in ${formData.destination}`)
     } catch (err) {
       setError(err.message || 'Failed to get activity suggestions. Please try again.')
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSave = () => {
+    if (!saveName.trim()) return
+    saveChat({ name: saveName, type: 'activity', result, formData })
+    setSaveConfirmed(true)
+    setShowSave(false)
+  }
+
+  const handleReset = () => {
+    setResult('')
+    setShowSave(false)
+    setSaveConfirmed(false)
   }
 
   return (
@@ -87,7 +107,37 @@ export default function Activities() {
               <span>✦</span>
             </div>
             <div className="activities-result-body">{result}</div>
-            <button className="activities-reset" onClick={() => setResult('')}>Plan Again</button>
+
+            {/* ── Save panel ── */}
+            <div className="result-save-panel">
+              {saveConfirmed ? (
+                <span className="save-confirmed">✓ Saved — find it under Saved Results</span>
+              ) : showSave ? (
+                <div className="save-input-row">
+                  <input
+                    className="save-name-input"
+                    type="text"
+                    placeholder="Name this result…"
+                    value={saveName}
+                    onChange={e => setSaveName(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSave()}
+                    autoFocus
+                  />
+                  <button className="save-confirm-btn" onClick={handleSave} disabled={!saveName.trim()}>
+                    Save
+                  </button>
+                  <button className="save-cancel-btn" onClick={() => setShowSave(false)}>
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button className="save-trigger-btn" onClick={() => setShowSave(true)}>
+                  🔖 Save Result
+                </button>
+              )}
+            </div>
+
+            <button className="activities-reset" onClick={handleReset}>Plan Again</button>
           </div>
         )}
 

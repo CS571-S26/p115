@@ -1,0 +1,290 @@
+/* src/SavedChats/SavedChats.css */
+
+/* ── Page shell (matches flights/accom/activities pattern) ── */
+.saved-page {
+    width: 100%;
+    min-height: calc(100vh - 60px);
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 3rem 2rem;
+  }
+  
+  .saved-container {
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  /* ── Header ── */
+  .saved-header {
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .saved-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.8rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.02em;
+  }
+  
+  .saved-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+  
+  /* ── Empty state ── */
+  .saved-empty {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 3.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  
+  .saved-empty-icon {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .saved-empty h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+  }
+  
+  .saved-empty p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    line-height: 1.65;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  /* ── List ── */
+  .saved-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  /* ── Card ── */
+  .saved-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    transition: border-color 0.2s;
+  }
+  
+  .saved-card.expanded {
+    border-color: rgba(201, 169, 110, 0.4);
+  }
+  
+  /* ── Card top row (always visible, clickable) ── */
+  .saved-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    gap: 1rem;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  
+  .saved-card-top:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  
+  .saved-card-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    flex: 1;
+  }
+  
+  .saved-card-right {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-shrink: 0;
+  }
+  
+  .saved-card-name {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.97rem;
+    font-weight: 500;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .saved-card-date {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  
+  .saved-chevron {
+    color: var(--text-muted);
+    font-size: 1.3rem;
+    line-height: 1;
+    transition: transform 0.2s;
+    display: inline-block;
+  }
+  
+  .saved-chevron.open {
+    transform: rotate(90deg);
+  }
+  
+  /* ── Badges ── */
+  .saved-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.22rem 0.65rem;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+  
+  .badge-flight {
+    background: rgba(99, 179, 255, 0.12);
+    color: #7ec8ff;
+    border: 1px solid rgba(99, 179, 255, 0.3);
+  }
+  
+  .badge-accom {
+    background: rgba(129, 236, 161, 0.1);
+    color: #81eca1;
+    border: 1px solid rgba(129, 236, 161, 0.25);
+  }
+  
+  .badge-activity {
+    background: rgba(201, 169, 110, 0.12);
+    color: var(--gold);
+    border: 1px solid rgba(201, 169, 110, 0.3);
+  }
+  
+  /* ── Expanded body ── */
+  .saved-card-body {
+    padding: 0 1.5rem 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  
+  .saved-result-text {
+    margin-top: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: var(--text-main);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .saved-result-text::-webkit-scrollbar { width: 4px; }
+  .saved-result-text::-webkit-scrollbar-track { background: transparent; }
+  .saved-result-text::-webkit-scrollbar-thumb {
+    background: rgba(201, 169, 110, 0.3);
+    border-radius: 2px;
+  }
+  
+  /* ── Card actions ── */
+  .saved-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+  }
+  
+  .saved-btn-delete {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 0.45rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.83rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .saved-btn-delete:hover {
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.07);
+  }
+  
+  /* ── Confirm delete row ── */
+  .saved-confirm-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  
+  .saved-confirm-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  
+  .saved-btn-yes {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 6px;
+    padding: 0.4rem 0.9rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.83rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .saved-btn-yes:hover { background: rgba(239, 68, 68, 0.28); }
+  
+  .saved-btn-no {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.4rem 0.9rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.83rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .saved-btn-no:hover {
+    color: var(--text-main);
+    border-color: rgba(255,255,255,0.25);
+  }
+  
+  /* ── Responsive ── */
+  @media (max-width: 580px) {
+    .saved-card-top { padding: 0.85rem 1rem; }
+    .saved-card-body { padding: 0 1rem 1rem; }
+    .saved-card-date { display: none; }
+  }

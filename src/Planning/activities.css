@@ -325,3 +325,115 @@ select.activities-input option {
   .activities-card { padding: 1.25rem; }
   .pace-toggle { width: 100%; }
 }
+
+
+.result-save-panel {
+  display: flex;
+  justify-content: center;
+  padding: 0 2rem 0.25rem;
+  margin-top: 0.25rem;
+}
+
+/* Trigger button — styled like the reset button but gold-bordered */
+.save-trigger-btn {
+  background: transparent;
+  border: 1px solid rgba(201, 169, 110, 0.45);
+  color: var(--gold);
+  border-radius: 6px;
+  padding: 0.5rem 1.3rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.01em;
+}
+
+.save-trigger-btn:hover {
+  background: rgba(201, 169, 110, 0.08);
+  border-color: var(--gold);
+}
+
+/* Input row */
+.save-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 480px;
+  flex-wrap: wrap;
+}
+
+.save-name-input {
+  flex: 1;
+  min-width: 160px;
+  padding: 0.5rem 0.85rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-main);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.save-name-input::placeholder {
+  color: var(--text-muted);
+}
+
+.save-name-input:focus {
+  border-color: var(--gold);
+}
+
+.save-confirm-btn {
+  background: var(--gold);
+  color: #0e0e0e;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.1rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.save-confirm-btn:hover:not(:disabled) {
+  background: var(--gold-hover);
+}
+
+.save-confirm-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.save-cancel-btn {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.save-cancel-btn:hover {
+  color: var(--text-main);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Success confirmation text */
+.save-confirmed {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  color: #81eca1;
+  padding: 0.45rem 1rem;
+  background: rgba(129, 236, 161, 0.08);
+  border: 1px solid rgba(129, 236, 161, 0.22);
+  border-radius: 6px;
+}

@@ -8,6 +8,7 @@ import AboutUs from './aboutUs'
 import Flights from './Planning/Flights'
 import Accommodations from './Planning/accommodations'
 import Activities from './Planning/Activities'
+import SavedChats from './SavedChats/SavedChats'
 import Home from './Home'
 import './App.css'
 
@@ -45,6 +46,7 @@ function App() {
             <Nav.Link as={Link} to="/flights" eventKey="/flights">Flight Planner</Nav.Link>
             <Nav.Link as={Link} to="/accommodations" eventKey="/accommodations">Accommodations</Nav.Link>
             <Nav.Link as={Link} to="/activities" eventKey="/activities">Activities</Nav.Link>
+            <Nav.Link as={Link} to="/saved" eventKey="/saved">Saved Results</Nav.Link>
             <Nav.Link as={Link} to="/aboutUs" eventKey="/aboutUs">About Us</Nav.Link>
             <Nav.Link as={Link} to="/settings" eventKey="/settings">Settings</Nav.Link>
           </Nav>
@@ -74,6 +76,9 @@ function App() {
           } />
           <Route path="/activities" element={
             <ProtectedRoute isLoggedIn={loggedIn} element={<Activities />} />
+          } />
+          <Route path="/saved" element={
+            <ProtectedRoute isLoggedIn={loggedIn} element={<SavedChats />} />
           } />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/register" element={<Register onLogin={handleLogin} />} />

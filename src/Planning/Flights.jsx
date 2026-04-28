@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { sendToOpenAI, createFlightSearchPrompt } from '../utils/openaiClient'
+import { saveChat } from '../utils/savedChats'
 import './flights.css'
 
 export default function Flights() {
@@ -15,10 +16,12 @@ export default function Flights() {
     flexibility: 'exact',
     preferences: ''
   })
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState('')
-  const [error, setError] = useState('')
-  
+  const [loading, setLoading]         = useState(false)
+  const [result, setResult]           = useState('')
+  const [error, setError]             = useState('')
+  const [showSave, setShowSave]       = useState(false)
+  const [saveName, setSaveName]       = useState('')
+  const [saveConfirmed, setSaveConfirmed] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -28,6 +31,8 @@ export default function Flights() {
   const handleSubmit = async () => {
     setError('')
     setResult('')
+    setShowSave(false)
+    setSaveConfirmed(false)
 
     const required = ['from', 'to', 'departureDate', 'budget']
     const missing = required.filter(f => !formData[f].trim())
@@ -45,11 +50,25 @@ export default function Flights() {
       const prompt = createFlightSearchPrompt(formData)
       const text = await sendToOpenAI(prompt)
       setResult(text)
+      setSaveName(`${formData.from} → ${formData.to}`)
     } catch (err) {
       setError(err.message || 'Failed to get flight suggestions. Please try again.')
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSave = () => {
+    if (!saveName.trim()) return
+    saveChat({ name: saveName, type: 'flight', result, formData })
+    setSaveConfirmed(true)
+    setShowSave(false)
+  }
+
+  const handleReset = () => {
+    setResult('')
+    setShowSave(false)
+    setSaveConfirmed(false)
   }
 
   return (
@@ -71,7 +90,37 @@ export default function Flights() {
               <span>✦</span>
             </div>
             <div className="flights-result-body">{result}</div>
-            <button className="flights-reset" onClick={() => setResult('')}>Search Again</button>
+
+            {/* ── Save panel ── */}
+            <div className="result-save-panel">
+              {saveConfirmed ? (
+                <span className="save-confirmed">✓ Saved — find it under Saved Results</span>
+              ) : showSave ? (
+                <div className="save-input-row">
+                  <input
+                    className="save-name-input"
+                    type="text"
+                    placeholder="Name this result…"
+                    value={saveName}
+                    onChange={e => setSaveName(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSave()}
+                    autoFocus
+                  />
+                  <button className="save-confirm-btn" onClick={handleSave} disabled={!saveName.trim()}>
+                    Save
+                  </button>
+                  <button className="save-cancel-btn" onClick={() => setShowSave(false)}>
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button className="save-trigger-btn" onClick={() => setShowSave(true)}>
+                  🔖 Save Result
+                </button>
+              )}
+            </div>
+
+            <button className="flights-reset" onClick={handleReset}>Search Again</button>
           </div>
         )}
 

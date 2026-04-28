@@ -67,8 +67,8 @@ body::after {
   z-index: 100;
   display: flex;
   align-items: center;
-  gap: 2rem;
-  padding: 0 2.5rem;
+  gap: 1rem;
+  padding: 0 1.5rem;
   height: 60px;
   background: var(--glass-bg);
   backdrop-filter: blur(18px);
@@ -98,9 +98,9 @@ body::after {
 
 .topnav-links .nav-link {
   color: var(--text-muted) !important;
-  font-size: 0.88rem !important;
+  font-size: 0.82rem !important;
   font-weight: 400 !important;
-  padding: 0.4rem 0.85rem !important;
+  padding: 0.4rem 0.55rem !important;
   border-radius: 3px;
   transition: color 0.2s, background 0.2s !important;
   white-space: nowrap;
@@ -317,4 +317,3 @@ select.chat-input { color: var(--text-main); }
   border-color: #f87171 !important;
   color: #f87171 !important;
 }
-
