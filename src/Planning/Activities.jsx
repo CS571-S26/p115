@@ -30,6 +30,54 @@ const DEFAULT_FORM = {
   specialRequirements: ''
 }
 
+// ─── Badge → CSS class map ────────────────────
+const BADGE_CLASS = {
+  'Must-do':         'ac-badge-mustdo',
+  'Hidden gem':      'ac-badge-hidden',
+  'Best for groups': 'ac-badge-groups',
+  'Budget pick':     'ac-badge-budget',
+}
+
+// ─── Single activity card ─────────────────────
+function ActivityCard({ activity, index }) {
+  const badgeClass = BADGE_CLASS[activity.badge] ?? 'ac-badge-mustdo'
+
+  return (
+    <div className="ac-card" style={{ animationDelay: `${index * 90}ms` }}>
+      <div className="ac-header">
+        <div className="ac-header-left">
+          <span className={`ac-badge ${badgeClass}`}>{activity.badge}</span>
+          <p className="ac-name">{activity.name}</p>
+          <p className="ac-meta">{activity.category} · {activity.duration}</p>
+          <p className="ac-meta">Best time: {activity.bestTime}</p>
+        </div>
+        <div className="ac-cost-block">
+          <p className="ac-cost">${activity.estimatedCost}</p>
+          <p className="ac-cost-label">est. per person</p>
+        </div>
+      </div>
+
+      <div className="ac-divider" />
+
+      <ul className="ac-highlights">
+        {activity.highlights.map((h, i) => (
+          <li key={i}>{h}</li>
+        ))}
+      </ul>
+
+      <p className="ac-reason">{activity.reason}</p>
+
+      {activity.tip && (
+        <div className="ac-tip">
+          <span className="ac-tip-icon">&#9432;</span>
+          {activity.tip}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Main component ───────────────────────────
 export default function Activities() {
   const [formData, setFormData] = useState(() => {
     try {
@@ -40,7 +88,7 @@ export default function Activities() {
     }
   })
   const [loading, setLoading]             = useState(false)
-  const [result, setResult]               = useState('')
+  const [activities, setActivities]       = useState([])
   const [error, setError]                 = useState('')
   const [showSave, setShowSave]           = useState(false)
   const [saveName, setSaveName]           = useState('')
@@ -68,7 +116,7 @@ export default function Activities() {
 
   const handleSubmit = async () => {
     setError('')
-    setResult('')
+    setActivities([])
     setShowSave(false)
     setSaveConfirmed(false)
 
@@ -82,11 +130,17 @@ export default function Activities() {
     setLoading(true)
     try {
       const prompt = createActivitiesPlanPrompt(formData)
-      const text = await sendToOpenAI(prompt)
-      setResult(text)
+      const raw = await sendToOpenAI(prompt)
+      const cleaned = raw.trim().replace(/^```(?:json)?|```$/gm, '').trim()
+      const parsed = JSON.parse(cleaned)
+      setActivities(parsed)
       setSaveName(`Activities in ${formData.destination}`)
     } catch (err) {
-      setError(err.message || 'Failed to get activity suggestions. Please try again.')
+      if (err.message.includes('JSON') || err.message.includes('Unexpected token')) {
+        setError('Unexpected response format. Please try again.')
+      } else {
+        setError(err.message || 'Failed to get activity suggestions. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -94,13 +148,13 @@ export default function Activities() {
 
   const handleSave = () => {
     if (!saveName.trim()) return
-    saveChat({ name: saveName, type: 'activity', result, formData })
+    saveChat({ name: saveName, type: 'activity', result: JSON.stringify(activities), formData })
     setSaveConfirmed(true)
     setShowSave(false)
   }
 
   const handleReset = () => {
-    setResult('')
+    setActivities([])
     setShowSave(false)
     setSaveConfirmed(false)
   }
@@ -110,6 +164,63 @@ export default function Activities() {
     sessionStorage.removeItem(STORAGE_KEY)
   }
 
+  // ── Results view ──────────────────────────────
+  if (activities.length > 0) {
+    return (
+      <div className="activities-page">
+        <div className="activities-container">
+          <div className="activities-header">
+            <h1>Activity Planner</h1>
+            <p className="activities-subtitle">
+              {formData.destination} · {formData.travelDates}
+            </p>
+          </div>
+
+          <p className="activities-result-count">
+            {activities.length} experiences · curated for your travel style
+          </p>
+
+          {activities.map((activity, i) => (
+            <ActivityCard key={`${activity.name}-${i}`} activity={activity} index={i} />
+          ))}
+
+          <div className="result-save-panel">
+            {saveConfirmed ? (
+              <span className="save-confirmed">✓ Saved — find it under Saved Results</span>
+            ) : showSave ? (
+              <div className="save-input-row">
+                <input
+                  className="save-name-input"
+                  type="text"
+                  placeholder="Name this result…"
+                  value={saveName}
+                  onChange={e => setSaveName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSave()}
+                  autoFocus
+                />
+                <button className="save-confirm-btn" onClick={handleSave} disabled={!saveName.trim()}>
+                  Save
+                </button>
+                <button className="save-cancel-btn" onClick={() => setShowSave(false)}>
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button className="save-trigger-btn" onClick={() => setShowSave(true)}>
+                🔖 Save Result
+              </button>
+            )}
+          </div>
+
+          <button className="activities-reset" onClick={handleReset}>
+            ← Plan Again
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Search form ───────────────────────────────
   return (
     <div className="activities-page">
       <div className="activities-container">
@@ -121,48 +232,7 @@ export default function Activities() {
 
         {error && <div className="activities-error">⚠ {error}</div>}
 
-        {result && (
-          <div className="activities-result">
-            <div className="activities-result-header">
-              <span>✦</span>
-              <h3>Your Activity Recommendations</h3>
-              <span>✦</span>
-            </div>
-            <div className="activities-result-body">{result}</div>
-
-            <div className="result-save-panel">
-              {saveConfirmed ? (
-                <span className="save-confirmed">✓ Saved — find it under Saved Results</span>
-              ) : showSave ? (
-                <div className="save-input-row">
-                  <input
-                    className="save-name-input"
-                    type="text"
-                    placeholder="Name this result…"
-                    value={saveName}
-                    onChange={e => setSaveName(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleSave()}
-                    autoFocus
-                  />
-                  <button className="save-confirm-btn" onClick={handleSave} disabled={!saveName.trim()}>
-                    Save
-                  </button>
-                  <button className="save-cancel-btn" onClick={() => setShowSave(false)}>
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <button className="save-trigger-btn" onClick={() => setShowSave(true)}>
-                  🔖 Save Result
-                </button>
-              )}
-            </div>
-
-            <button className="activities-reset" onClick={handleReset}>Plan Again</button>
-          </div>
-        )}
-
-        {!result && (
+        {!activities.length && (
           <div className="activities-card">
 
             <div className="activities-row">

@@ -8,9 +8,6 @@ const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
 
 /**
  * Send a prompt to OpenAI and get a response
- * @param {string} prompt - The user's prompt
- * @param {string} model - The model to use (default: gpt-3.5-turbo)
- * @returns {Promise<string>} - The API response text
  */
 export async function sendToOpenAI(prompt, model = 'gpt-3.5-turbo', temperature = 0.7) {
   if (!OPENAI_API_KEY) {
@@ -25,7 +22,7 @@ export async function sendToOpenAI(prompt, model = 'gpt-3.5-turbo', temperature 
         'Authorization': `Bearer ${OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: model,
+        model,
         messages: [
           {
             role: 'system',
@@ -36,7 +33,7 @@ export async function sendToOpenAI(prompt, model = 'gpt-3.5-turbo', temperature 
             content: prompt
           }
         ],
-        temperature: temperature,
+        temperature,
         max_tokens: 2000
       })
     })
@@ -55,9 +52,139 @@ export async function sendToOpenAI(prompt, model = 'gpt-3.5-turbo', temperature 
 }
 
 /**
+ * Flight search prompt — returns structured JSON so the UI can render cards.
+ */
+export function createFlightSearchPrompt(formData) {
+  return `You are a knowledgeable flight advisor. Based on the travel details below, suggest the 3 best flight options a traveler could realistically find on a platform like Google Flights or Kayak.
+
+Travel Details:
+- From: ${formData.from}
+- To: ${formData.to}
+- Trip Type: ${formData.tripType}
+- Departure Date: ${formData.departureDate}
+${formData.tripType === 'roundtrip' ? `- Return Date: ${formData.returnDate}` : ''}
+- Passengers: ${formData.passengers}
+- Cabin Class: ${formData.cabinClass}
+- Total Budget: $${formData.budget}
+- Date Flexibility: ${formData.flexibility}
+${formData.preferences ? `- Additional Preferences: ${formData.preferences}` : ''}
+
+Respond ONLY with a valid JSON array — no markdown fences, no explanation outside the JSON. Each item must follow this exact shape:
+
+[
+  {
+    "badge": "Best value",
+    "airline": "Delta",
+    "flightNumber": "DL 405",
+    "departure": "8:00 AM",
+    "arrival": "11:14 AM",
+    "duration": "5h 14m",
+    "stops": 0,
+    "estimatedPrice": 312,
+    "withinBudget": true,
+    "reason": "One sentence on why this is a strong pick for this traveler.",
+    "tip": "One practical booking or travel tip specific to this option."
+  }
+]
+
+Rules:
+- badge must be exactly one of: "Best value", "Cheapest", "Fastest", "Most convenient" — each flight gets a unique badge
+- stops is a number (0 = nonstop)
+- estimatedPrice is a number (per person, in USD)
+- withinBudget is true if estimatedPrice × ${formData.passengers} is within the total budget of $${formData.budget}
+- Base estimates on real typical pricing for this route and cabin class
+- Return exactly 3 items`
+}
+
+/**
+ * Accommodation search prompt — returns structured JSON so the UI can render cards.
+ */
+export function createAccommodationPlanPrompt(formData) {
+  return `You are a knowledgeable accommodation advisor. Based on the details below, suggest the 3 best accommodation options a traveler could realistically find on platforms like Booking.com or Airbnb.
+
+Stay Details:
+- Destination: ${formData.destination}
+- Check-in: ${formData.checkInDate}
+- Check-out: ${formData.checkOutDate}
+- Budget per Night: $${formData.budgetPerNight}
+- Accommodation Type: ${formData.accommodationType}
+- Guests: ${formData.groupSize}
+${formData.neighborhoodVibe ? `- Neighborhood Vibe: ${formData.neighborhoodVibe}` : ''}
+${formData.locationPreference ? `- Location Preference: ${formData.locationPreference}` : ''}
+${formData.amenities ? `- Must-Have Amenities: ${formData.amenities}` : ''}
+${formData.preferences ? `- Additional Preferences: ${formData.preferences}` : ''}
+
+Respond ONLY with a valid JSON array — no markdown fences, no explanation outside the JSON. Each item must follow this exact shape:
+
+[
+  {
+    "badge": "Best value",
+    "name": "Hotel Le Marais",
+    "type": "Boutique Hotel",
+    "neighborhood": "Le Marais, Paris",
+    "pricePerNight": 145,
+    "withinBudget": true,
+    "stars": 4,
+    "highlights": ["Free breakfast", "Rooftop terrace", "5 min walk to Louvre"],
+    "reason": "One sentence on why this is a strong pick for this traveler.",
+    "tip": "One practical booking tip specific to this property."
+  }
+]
+
+Rules:
+- badge must be exactly one of: "Best value", "Most luxurious", "Best location", "Hidden gem" — each option gets a unique badge
+- pricePerNight is a number in USD
+- withinBudget is true if pricePerNight is within $${formData.budgetPerNight}
+- stars is a number 1–5
+- highlights is an array of exactly 3 short strings (amenities or standout features)
+- Base estimates on real typical pricing for this destination and accommodation type
+- Return exactly 3 items`
+}
+
+/**
+ * Activities planner prompt — returns structured JSON so the UI can render cards.
+ */
+export function createActivitiesPlanPrompt(formData) {
+  return `You are a knowledgeable travel activities advisor. Based on the details below, suggest the 4 best activities or experiences for this traveler.
+
+Trip Details:
+- Destination: ${formData.destination}
+- Travel Dates: ${formData.travelDates}
+- Budget for Activities: $${formData.budget}
+- Trip Duration: ${formData.duration || 'Not specified'}
+- Group Type: ${formData.groupType}
+- Pace: ${formData.pace}
+${formData.activityTypes && formData.activityTypes.length > 0 ? `- Preferred Activity Types: ${formData.activityTypes.join(', ')}` : ''}
+${formData.interests ? `- Specific Interests: ${formData.interests}` : ''}
+${formData.specialRequirements ? `- Special Requirements: ${formData.specialRequirements}` : ''}
+
+Respond ONLY with a valid JSON array — no markdown fences, no explanation outside the JSON. Each item must follow this exact shape:
+
+[
+  {
+    "badge": "Must-do",
+    "name": "Eiffel Tower at Sunset",
+    "category": "Culture & History",
+    "duration": "2–3 hours",
+    "estimatedCost": 35,
+    "bestTime": "Late afternoon",
+    "highlights": ["Panoramic city views", "Skip-the-line tickets available", "Iconic photo opportunity"],
+    "reason": "One sentence on why this activity is perfect for this traveler.",
+    "tip": "One practical insider tip to get the most out of this experience."
+  }
+]
+
+Rules:
+- badge must be exactly one of: "Must-do", "Hidden gem", "Best for groups", "Budget pick" — each activity gets a unique badge
+- estimatedCost is a number in USD per person
+- duration is a short human-readable string like "2–3 hours" or "Half day"
+- bestTime is a short string like "Morning", "Late afternoon", "Evening"
+- highlights is an array of exactly 3 short strings
+- Return exactly 4 items`
+}
+
+/**
  * Create a travel planning prompt from form data
- * @param {object} formData - The travel plan form data
- * @returns {string} - A formatted prompt for OpenAI
  */
 export function createTravelPlanPrompt(formData) {
   return `Please create a detailed travel itinerary based on the following information:
@@ -87,147 +214,4 @@ Please provide:
 3. Accommodation recommendations
 4. Activity recommendations based on their interests
 5. Travel tips and logistics`
-}
-
-/**
- * Create a flight search prompt from form data
- * @param {object} formData - The flight search form data
- * @returns {string} - A formatted prompt for OpenAI
- */
-export function createFlightSearchPrompt(formData) {
-  return `You are a flight search expert. Based on the following travel details, suggest the best flight options, airlines, tips for finding deals, and an estimated cost breakdown.
-
-Travel Details:
-- From: ${formData.from}
-- To: ${formData.to}
-- Trip Type: ${formData.tripType}
-- Departure Date: ${formData.departureDate}
-${formData.tripType === 'roundtrip' ? `- Return Date: ${formData.returnDate}` : ''}
-- Passengers: ${formData.passengers}
-- Cabin Class: ${formData.cabinClass}
-- Total Budget: $${formData.budget}
-- Date Flexibility: ${formData.flexibility}
-${formData.preferences ? `- Additional Preferences: ${formData.preferences}` : ''}
-
-Please provide:
-1. Best airlines and estimated prices for this route
-2. Tips to find the cheapest flights within budget
-3. Recommended booking platforms
-4. Layover or connection options
-5. Baggage and extra fee considerations`
-}
-
-/**
- * Create a flight plan prompt using REAL flight data
- * @param {object} formData - The flight planner form data
- * @param {array} flights - REAL flight data from API
- * @returns {string} - A formatted prompt for OpenAI
- */
-export function createFlightPlanPrompt(formData, flights = []) {
-  if (!flights || flights.length === 0) {
-    return `Unfortunately, no flights were found for the selected route. Please try different dates or destinations.`
-  }
-
-  const flightsList = flights.map((flight, index) => `
-Option ${index + 1}: ${flight.airline} Flight ${flight.flightNumber}
-  Departure: ${flight.departure.time} from ${flight.departure.airportName}
-  Arrival: ${flight.arrival.time} at ${flight.arrival.airportName}
-  Duration: ${flight.duration}
-  Stops: ${flight.stopsDescription}
-  Price: ${flight.priceFormatted}`).join('\n')
-
-  return `You are a travel planning assistant. A user is looking for flights and you have been provided with REAL flight options from a flight search API.
-
-DO NOT invent, guess, or hallucinate any flight information.
-ONLY use the flight data provided below.
-DO NOT add additional flights that are not in the list.
-
-USER REQUEST:
-- From: ${formData.departureCity}
-- To: ${formData.destination}
-- Departure Date: ${formData.departureDate}
-- Return Date: ${formData.returnDate}
-- Budget: ${formData.budget}
-- Passengers: ${formData.passengers}
-${formData.preferences ? `- Preferences: ${formData.preferences}` : ''}
-
-REAL FLIGHT OPTIONS FROM API:
-${flightsList}
-
-YOUR TASK:
-1. Select the top 2-3 best options based on:
-   - Price (within their budget)
-   - Duration (shortest travel time)
-   - Number of stops (fewer is better)
-   - User preferences
-
-2. For each recommended flight, explain:
-   - Why this is a good option
-   - Total price and value
-   - Travel time considerations
-
-3. Provide a clear recommendation for best value vs best convenience
-
-Remember: ONLY present flights from the list above. If no flights match their criteria, explain why and suggest alternative dates or routes.`
-}
-
-/**
- * Create activities planner prompt
- */
-export function createActivitiesPlanPrompt(formData) {
-  return `Please create a personalized activities itinerary based on the following:
-
-Destination: ${formData.destination}
-Travel Dates: ${formData.travelDates}
-Activities Budget: ${formData.budget}
-Trip Duration: ${formData.duration}
-Group Type: ${formData.groupType}
-Pace: ${formData.pace}
-
-${formData.activityTypes && formData.activityTypes.length > 0 ? `
-Preferred Activity Types:
-${formData.activityTypes.join('\n')}
-` : ''}
-
-Additional Interests:
-${formData.interests}
-
-${formData.specialRequirements ? `Special Requirements: ${formData.specialRequirements}` : ''}
-
-Please provide:
-1. Day-by-day activity recommendations
-2. Estimated costs for each activity
-3. Best times to visit each location
-4. Tips for each activity
-5. Alternative options for different preferences`
-}
-
-/**
- * Create accommodation planner prompt
- */
-export function createAccommodationPlanPrompt(formData) {
-  return `Please find accommodation options based on:
-
-Destination: ${formData.destination}
-Check-in: ${formData.checkInDate}
-Check-out: ${formData.checkOutDate}
-Budget per Night: ${formData.budgetPerNight}
-Accommodation Type: ${formData.accommodationType || 'Any'}
-Group Size: ${formData.groupSize} people
-
-${formData.locationPreference ? `Location Preference: ${formData.locationPreference}` : ''}
-${formData.neighborhoodVibe ? `Neighborhood Vibe: ${formData.neighborhoodVibe}` : ''}
-
-Desired Amenities:
-${formData.amenities || 'Flexible'}
-
-Additional Preferences:
-${formData.preferences || 'None'}
-
-Please recommend:
-1. 3-5 specific accommodation options (hotels, apartments, resorts)
-2. Price breakdown and value analysis
-3. Why each location is good for your trip
-4. Booking tips and best times to book
-5. What to expect from each neighborhood`
 }

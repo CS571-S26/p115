@@ -18,6 +18,54 @@ const DEFAULT_FORM = {
   preferences: ''
 }
 
+// ─── Badge → CSS class map ────────────────────
+const BADGE_CLASS = {
+  'Best value':      'fc-badge-best',
+  'Cheapest':        'fc-badge-cheap',
+  'Fastest':         'fc-badge-fast',
+  'Most convenient': 'fc-badge-conv',
+}
+
+// ─── Single flight card ───────────────────────
+function FlightCard({ flight, index }) {
+  const badgeClass = BADGE_CLASS[flight.badge] ?? 'fc-badge-best'
+
+  return (
+    <div className="fc-card" style={{ animationDelay: `${index * 90}ms` }}>
+      <div className="fc-header">
+        <div className="fc-header-left">
+          <span className={`fc-badge ${badgeClass}`}>{flight.badge}</span>
+          <p className="fc-airline">{flight.airline} · {flight.flightNumber}</p>
+          <p className="fc-meta">{flight.departure} → {flight.arrival} · {flight.duration}</p>
+          <p className="fc-meta">
+            {flight.stops === 0 ? 'Nonstop' : `${flight.stops} stop${flight.stops > 1 ? 's' : ''}`}
+          </p>
+        </div>
+
+        <div className="fc-price-block">
+          <p className="fc-price">${flight.estimatedPrice}</p>
+          <p className="fc-price-label">est. per person</p>
+          {!flight.withinBudget && (
+            <p className="fc-over-budget">over budget</p>
+          )}
+        </div>
+      </div>
+
+      <div className="fc-divider" />
+
+      <p className="fc-reason">{flight.reason}</p>
+
+      {flight.tip && (
+        <div className="fc-tip">
+          <span className="fc-tip-icon">&#9432;</span>
+          {flight.tip}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Main component ───────────────────────────
 export default function Flights() {
   const [formData, setFormData] = useState(() => {
     try {
@@ -28,7 +76,7 @@ export default function Flights() {
     }
   })
   const [loading, setLoading]             = useState(false)
-  const [result, setResult]               = useState('')
+  const [flights, setFlights]             = useState([])
   const [error, setError]                 = useState('')
   const [showSave, setShowSave]           = useState(false)
   const [saveName, setSaveName]           = useState('')
@@ -47,7 +95,7 @@ export default function Flights() {
 
   const handleSubmit = async () => {
     setError('')
-    setResult('')
+    setFlights([])
     setShowSave(false)
     setSaveConfirmed(false)
 
@@ -65,11 +113,17 @@ export default function Flights() {
     setLoading(true)
     try {
       const prompt = createFlightSearchPrompt(formData)
-      const text = await sendToOpenAI(prompt)
-      setResult(text)
+      const raw = await sendToOpenAI(prompt, 'gpt-3.5-turbo', 0.3)
+      const cleaned = raw.trim().replace(/^```(?:json)?|```$/gm, '').trim()
+      const parsed = JSON.parse(cleaned)
+      setFlights(parsed)
       setSaveName(`${formData.from} → ${formData.to}`)
     } catch (err) {
-      setError(err.message || 'Failed to get flight suggestions. Please try again.')
+      if (err.message.includes('JSON') || err.message.includes('Unexpected token')) {
+        setError('Unexpected response format. Please try again.')
+      } else {
+        setError(err.message || 'Failed to get flight suggestions. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -77,13 +131,13 @@ export default function Flights() {
 
   const handleSave = () => {
     if (!saveName.trim()) return
-    saveChat({ name: saveName, type: 'flight', result, formData })
+    saveChat({ name: saveName, type: 'flight', result: JSON.stringify(flights), formData })
     setSaveConfirmed(true)
     setShowSave(false)
   }
 
   const handleReset = () => {
-    setResult('')
+    setFlights([])
     setShowSave(false)
     setSaveConfirmed(false)
   }
@@ -93,6 +147,63 @@ export default function Flights() {
     sessionStorage.removeItem(STORAGE_KEY)
   }
 
+  // ── Results view ──────────────────────────────
+  if (flights.length > 0) {
+    return (
+      <div className="flights-page">
+        <div className="flights-container">
+          <div className="flights-header">
+            <h1>Flight Finder</h1>
+            <p className="flights-subtitle">
+              {formData.from} → {formData.to} · {formData.departureDate}
+            </p>
+          </div>
+
+          <p className="flights-result-count">
+            {flights.length} options · estimated pricing based on typical fares
+          </p>
+
+          {flights.map((flight, i) => (
+            <FlightCard key={`${flight.flightNumber}-${i}`} flight={flight} index={i} />
+          ))}
+
+          <div className="result-save-panel">
+            {saveConfirmed ? (
+              <span className="save-confirmed">✓ Saved — find it under Saved Results</span>
+            ) : showSave ? (
+              <div className="save-input-row">
+                <input
+                  className="save-name-input"
+                  type="text"
+                  placeholder="Name this result…"
+                  value={saveName}
+                  onChange={e => setSaveName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSave()}
+                  autoFocus
+                />
+                <button className="save-confirm-btn" onClick={handleSave} disabled={!saveName.trim()}>
+                  Save
+                </button>
+                <button className="save-cancel-btn" onClick={() => setShowSave(false)}>
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button className="save-trigger-btn" onClick={() => setShowSave(true)}>
+                🔖 Save Result
+              </button>
+            )}
+          </div>
+
+          <button className="flights-reset" onClick={handleReset}>
+            ← Search Again
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Search form ───────────────────────────────
   return (
     <div className="flights-page">
       <div className="flights-container">
@@ -104,194 +215,151 @@ export default function Flights() {
 
         {error && <div className="flights-error">⚠ {error}</div>}
 
-        {result && (
-          <div className="flights-result">
-            <div className="flights-result-header">
-              <span>✦</span>
-              <h3>Your Flight Recommendations</h3>
-              <span>✦</span>
-            </div>
-            <div className="flights-result-body">{result}</div>
+        <div className="flights-card">
 
-            <div className="result-save-panel">
-              {saveConfirmed ? (
-                <span className="save-confirmed">✓ Saved — find it under Saved Results</span>
-              ) : showSave ? (
-                <div className="save-input-row">
-                  <input
-                    className="save-name-input"
-                    type="text"
-                    placeholder="Name this result…"
-                    value={saveName}
-                    onChange={e => setSaveName(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleSave()}
-                    autoFocus
-                  />
-                  <button className="save-confirm-btn" onClick={handleSave} disabled={!saveName.trim()}>
-                    Save
-                  </button>
-                  <button className="save-cancel-btn" onClick={() => setShowSave(false)}>
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <button className="save-trigger-btn" onClick={() => setShowSave(true)}>
-                  🔖 Save Result
-                </button>
-              )}
-            </div>
-
-            <button className="flights-reset" onClick={handleReset}>Search Again</button>
+          <div className="trip-type-toggle">
+            {['roundtrip', 'oneway', 'multicity'].map(type => (
+              <button
+                key={type}
+                className={`toggle-btn ${formData.tripType === type ? 'active' : ''}`}
+                onClick={() => setFormData(prev => ({ ...prev, tripType: type }))}
+              >
+                {type === 'roundtrip' ? 'Round Trip' : type === 'oneway' ? 'One Way' : 'Multi-City'}
+              </button>
+            ))}
           </div>
-        )}
 
-        {!result && (
-          <div className="flights-card">
-
-            <div className="trip-type-toggle">
-              {['roundtrip', 'oneway', 'multicity'].map(type => (
-                <button
-                  key={type}
-                  className={`toggle-btn ${formData.tripType === type ? 'active' : ''}`}
-                  onClick={() => setFormData(prev => ({ ...prev, tripType: type }))}
-                >
-                  {type === 'roundtrip' ? 'Round Trip' : type === 'oneway' ? 'One Way' : 'Multi-City'}
-                </button>
-              ))}
-            </div>
-
-            <div className="flights-row">
-              <div className="flights-field">
-                <label className="flights-label">From <span className="req">*</span></label>
-                <div className="input-icon-wrap">
-                  <span className="input-icon">✈</span>
-                  <input
-                    className="flights-input"
-                    type="text"
-                    name="from"
-                    placeholder="Departure city or airport"
-                    value={formData.from}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-              <div className="swap-icon">⇄</div>
-              <div className="flights-field">
-                <label className="flights-label">To <span className="req">*</span></label>
-                <div className="input-icon-wrap">
-                  <span className="input-icon">✈</span>
-                  <input
-                    className="flights-input"
-                    type="text"
-                    name="to"
-                    placeholder="Destination city or airport"
-                    value={formData.to}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flights-row">
-              <div className="flights-field">
-                <label className="flights-label">Departure Date <span className="req">*</span></label>
+          <div className="flights-row">
+            <div className="flights-field">
+              <label className="flights-label">From <span className="req">*</span></label>
+              <div className="input-icon-wrap">
+                <span className="input-icon">✈</span>
                 <input
                   className="flights-input"
-                  type="date"
-                  name="departureDate"
-                  value={formData.departureDate}
+                  type="text"
+                  name="from"
+                  placeholder="Departure city or airport"
+                  value={formData.from}
                   onChange={handleChange}
                 />
               </div>
-              {formData.tripType === 'roundtrip' && (
-                <div className="flights-field">
-                  <label className="flights-label">Return Date <span className="req">*</span></label>
-                  <input
-                    className="flights-input"
-                    type="date"
-                    name="returnDate"
-                    value={formData.returnDate}
-                    onChange={handleChange}
-                  />
-                </div>
-              )}
             </div>
-
-            <div className="flights-row">
-              <div className="flights-field">
-                <label className="flights-label">Passengers</label>
-                <select className="flights-input" name="passengers" value={formData.passengers} onChange={handleChange}>
-                  {[1,2,3,4,5,6,7,8].map(n => (
-                    <option key={n} value={n}>{n} {n === 1 ? 'Passenger' : 'Passengers'}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flights-field">
-                <label className="flights-label">Cabin Class</label>
-                <select className="flights-input" name="cabinClass" value={formData.cabinClass} onChange={handleChange}>
-                  <option value="economy">Economy</option>
-                  <option value="premium_economy">Premium Economy</option>
-                  <option value="business">Business</option>
-                  <option value="first">First Class</option>
-                </select>
+            <div className="swap-icon">⇄</div>
+            <div className="flights-field">
+              <label className="flights-label">To <span className="req">*</span></label>
+              <div className="input-icon-wrap">
+                <span className="input-icon">✈</span>
+                <input
+                  className="flights-input"
+                  type="text"
+                  name="to"
+                  placeholder="Destination city or airport"
+                  value={formData.to}
+                  onChange={handleChange}
+                />
               </div>
             </div>
+          </div>
 
-            <div className="flights-row">
-              <div className="flights-field">
-                <label className="flights-label">Total Budget <span className="req">*</span></label>
-                <div className="input-icon-wrap">
-                  <span className="input-icon">$</span>
-                  <input
-                    className="flights-input"
-                    type="text"
-                    name="budget"
-                    placeholder="e.g. 800"
-                    value={formData.budget}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-              <div className="flights-field">
-                <label className="flights-label">Date Flexibility</label>
-                <select className="flights-input" name="flexibility" value={formData.flexibility} onChange={handleChange}>
-                  <option value="exact">Exact dates</option>
-                  <option value="1-2">± 1–2 days</option>
-                  <option value="3-5">± 3–5 days</option>
-                  <option value="week">± 1 week</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flights-field full-width">
-              <label className="flights-label">Additional Preferences</label>
-              <textarea
-                className="flights-input flights-textarea"
-                name="preferences"
-                placeholder="e.g. direct flights only, specific airlines, window seat, avoid red-eyes..."
-                value={formData.preferences}
+          <div className="flights-row">
+            <div className="flights-field">
+              <label className="flights-label">Departure Date <span className="req">*</span></label>
+              <input
+                className="flights-input"
+                type="date"
+                name="departureDate"
+                value={formData.departureDate}
                 onChange={handleChange}
-                rows={3}
               />
             </div>
-
-            <div className="flights-form-actions">
-              <button className="flights-clear" onClick={handleClear}>
-                Clear Form
-              </button>
-              <button className="flights-submit" onClick={handleSubmit} disabled={loading}>
-                {loading ? (
-                  <span className="loading-text">
-                    <span className="spinner" /> Searching Flights...
-                  </span>
-                ) : (
-                  'Find My Flights'
-                )}
-              </button>
-            </div>
-
+            {formData.tripType === 'roundtrip' && (
+              <div className="flights-field">
+                <label className="flights-label">Return Date <span className="req">*</span></label>
+                <input
+                  className="flights-input"
+                  type="date"
+                  name="returnDate"
+                  value={formData.returnDate}
+                  onChange={handleChange}
+                />
+              </div>
+            )}
           </div>
-        )}
+
+          <div className="flights-row">
+            <div className="flights-field">
+              <label className="flights-label">Passengers</label>
+              <select className="flights-input" name="passengers" value={formData.passengers} onChange={handleChange}>
+                {[1,2,3,4,5,6,7,8].map(n => (
+                  <option key={n} value={n}>{n} {n === 1 ? 'Passenger' : 'Passengers'}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flights-field">
+              <label className="flights-label">Cabin Class</label>
+              <select className="flights-input" name="cabinClass" value={formData.cabinClass} onChange={handleChange}>
+                <option value="economy">Economy</option>
+                <option value="premium_economy">Premium Economy</option>
+                <option value="business">Business</option>
+                <option value="first">First Class</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flights-row">
+            <div className="flights-field">
+              <label className="flights-label">Total Budget <span className="req">*</span></label>
+              <div className="input-icon-wrap">
+                <span className="input-icon">$</span>
+                <input
+                  className="flights-input"
+                  type="text"
+                  name="budget"
+                  placeholder="e.g. 800"
+                  value={formData.budget}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div className="flights-field">
+              <label className="flights-label">Date Flexibility</label>
+              <select className="flights-input" name="flexibility" value={formData.flexibility} onChange={handleChange}>
+                <option value="exact">Exact dates</option>
+                <option value="1-2">± 1–2 days</option>
+                <option value="3-5">± 3–5 days</option>
+                <option value="week">± 1 week</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flights-field full-width">
+            <label className="flights-label">Additional Preferences</label>
+            <textarea
+              className="flights-input flights-textarea"
+              name="preferences"
+              placeholder="e.g. direct flights only, specific airlines, window seat, avoid red-eyes..."
+              value={formData.preferences}
+              onChange={handleChange}
+              rows={3}
+            />
+          </div>
+
+          <div className="flights-form-actions">
+            <button className="flights-clear" onClick={handleClear}>
+              Clear Form
+            </button>
+            <button className="flights-submit" onClick={handleSubmit} disabled={loading}>
+              {loading ? (
+                <span className="loading-text">
+                  <span className="spinner" /> Searching Flights...
+                </span>
+              ) : (
+                'Find My Flights'
+              )}
+            </button>
+          </div>
+
+        </div>
       </div>
     </div>
   )

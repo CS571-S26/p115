@@ -259,50 +259,17 @@ select.activities-input option {
   font-size: 0.9rem;
 }
 
-/* ── Result ── */
-.activities-result {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
-}
-
-.activities-result-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 1.2rem 2rem;
-  border-bottom: 1px solid var(--border);
-  background: rgba(201, 169, 110, 0.08);
-}
-
-.activities-result-header h3 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--gold);
+/* ── Results count ── */
+.activities-result-count {
+  font-size: 0.82rem;
+  color: var(--text-muted);
   margin: 0;
+  letter-spacing: 0.01em;
 }
 
-.activities-result-header span {
-  color: var(--gold);
-  font-size: 0.7rem;
-  opacity: 0.7;
-}
-
-.activities-result-body {
-  padding: 2rem;
-  color: var(--text-main);
-  font-size: 0.92rem;
-  line-height: 1.75;
-  white-space: pre-wrap;
-}
-
+/* ── Reset button ── */
 .activities-reset {
   display: block;
-  margin: 0 2rem 2rem;
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text-muted);
@@ -312,6 +279,7 @@ select.activities-input option {
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
+  margin-top: 0.25rem;
 }
 
 .activities-reset:hover {
@@ -319,14 +287,7 @@ select.activities-input option {
   border-color: rgba(255,255,255,0.25);
 }
 
-/* ── Responsive ── */
-@media (max-width: 580px) {
-  .activities-row { flex-direction: column; }
-  .activities-card { padding: 1.25rem; }
-  .pace-toggle { width: 100%; }
-}
-
-
+/* ── Save panel ── */
 .result-save-panel {
   display: flex;
   justify-content: center;
@@ -334,7 +295,6 @@ select.activities-input option {
   margin-top: 0.25rem;
 }
 
-/* Trigger button — styled like the reset button but gold-bordered */
 .save-trigger-btn {
   background: transparent;
   border: 1px solid rgba(201, 169, 110, 0.45);
@@ -354,7 +314,6 @@ select.activities-input option {
   border-color: var(--gold);
 }
 
-/* Input row */
 .save-input-row {
   display: flex;
   align-items: center;
@@ -378,13 +337,8 @@ select.activities-input option {
   transition: border-color 0.2s;
 }
 
-.save-name-input::placeholder {
-  color: var(--text-muted);
-}
-
-.save-name-input:focus {
-  border-color: var(--gold);
-}
+.save-name-input::placeholder { color: var(--text-muted); }
+.save-name-input:focus { border-color: var(--gold); }
 
 .save-confirm-btn {
   background: var(--gold);
@@ -400,14 +354,8 @@ select.activities-input option {
   white-space: nowrap;
 }
 
-.save-confirm-btn:hover:not(:disabled) {
-  background: var(--gold-hover);
-}
-
-.save-confirm-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
+.save-confirm-btn:hover:not(:disabled) { background: var(--gold-hover); }
+.save-confirm-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .save-cancel-btn {
   background: transparent;
@@ -427,7 +375,6 @@ select.activities-input option {
   border-color: rgba(255, 255, 255, 0.25);
 }
 
-/* Success confirmation text */
 .save-confirmed {
   font-family: 'DM Sans', sans-serif;
   font-size: 0.85rem;
@@ -461,4 +408,150 @@ select.activities-input option {
 .activities-clear:hover {
   color: var(--text-main);
   border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Responsive ── */
+@media (max-width: 580px) {
+  .activities-row { flex-direction: column; }
+  .activities-card { padding: 1.25rem; }
+  .pace-toggle { width: 100%; }
+}
+
+/* ─────────────────────────────────────────────
+   Activity result cards
+───────────────────────────────────────────── */
+.ac-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  animation: fadeUp 0.3s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ac-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.ac-header-left { flex: 1; }
+
+.ac-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.ac-badge-mustdo { background: rgba(201,169,110,0.18); color: var(--gold);  border: 1px solid rgba(201,169,110,0.3); }
+.ac-badge-hidden { background: rgba(127,119,221,0.15); color: #a89ff0;      border: 1px solid rgba(127,119,221,0.25); }
+.ac-badge-groups { background: rgba(29,158,117,0.15);  color: #3ecfa0;      border: 1px solid rgba(29,158,117,0.25); }
+.ac-badge-budget { background: rgba(99,153,34,0.15);   color: #8fc43a;      border: 1px solid rgba(99,153,34,0.25); }
+
+.ac-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0 0 4px;
+}
+
+.ac-meta {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  margin: 0 0 2px;
+}
+
+.ac-cost-block {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.ac-cost {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.9rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin: 0 0 2px;
+  line-height: 1;
+}
+
+.ac-cost-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.ac-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 1rem 0;
+}
+
+.ac-highlights {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ac-highlights li {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding-left: 1rem;
+  position: relative;
+}
+
+.ac-highlights li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  opacity: 0.7;
+}
+
+.ac-reason {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0 0 0.75rem;
+}
+
+.ac-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  background: rgba(201,169,110,0.06);
+  border: 1px solid rgba(201,169,110,0.15);
+  border-radius: 8px;
+  padding: 0.65rem 0.9rem;
+  line-height: 1.5;
+}
+
+.ac-tip-icon {
+  color: var(--gold);
+  opacity: 0.7;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  margin-top: 1px;
+}
+
+@media (max-width: 580px) {
+  .ac-header { flex-direction: column; }
+  .ac-cost-block { text-align: left; }
 }
