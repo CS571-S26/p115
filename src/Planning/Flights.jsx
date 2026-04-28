@@ -1,27 +1,44 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { sendToOpenAI, createFlightSearchPrompt } from '../utils/openaiClient'
 import { saveChat } from '../utils/savedChats'
 import './flights.css'
 
+const STORAGE_KEY = 'flightsFormData'
+
+const DEFAULT_FORM = {
+  from: '',
+  to: '',
+  departureDate: '',
+  returnDate: '',
+  tripType: 'roundtrip',
+  passengers: '1',
+  cabinClass: 'economy',
+  budget: '',
+  flexibility: 'exact',
+  preferences: ''
+}
+
 export default function Flights() {
-  const [formData, setFormData] = useState({
-    from: '',
-    to: '',
-    departureDate: '',
-    returnDate: '',
-    tripType: 'roundtrip',
-    passengers: '1',
-    cabinClass: 'economy',
-    budget: '',
-    flexibility: 'exact',
-    preferences: ''
+  const [formData, setFormData] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY)
+      return saved ? JSON.parse(saved) : DEFAULT_FORM
+    } catch {
+      return DEFAULT_FORM
+    }
   })
-  const [loading, setLoading]         = useState(false)
-  const [result, setResult]           = useState('')
-  const [error, setError]             = useState('')
-  const [showSave, setShowSave]       = useState(false)
-  const [saveName, setSaveName]       = useState('')
+  const [loading, setLoading]             = useState(false)
+  const [result, setResult]               = useState('')
+  const [error, setError]                 = useState('')
+  const [showSave, setShowSave]           = useState(false)
+  const [saveName, setSaveName]           = useState('')
   const [saveConfirmed, setSaveConfirmed] = useState(false)
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
+    } catch {}
+  }, [formData])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -71,6 +88,11 @@ export default function Flights() {
     setSaveConfirmed(false)
   }
 
+  const handleClear = () => {
+    setFormData(DEFAULT_FORM)
+    sessionStorage.removeItem(STORAGE_KEY)
+  }
+
   return (
     <div className="flights-page">
       <div className="flights-container">
@@ -91,7 +113,6 @@ export default function Flights() {
             </div>
             <div className="flights-result-body">{result}</div>
 
-            {/* ── Save panel ── */}
             <div className="result-save-panel">
               {saveConfirmed ? (
                 <span className="save-confirmed">✓ Saved — find it under Saved Results</span>
@@ -127,7 +148,6 @@ export default function Flights() {
         {!result && (
           <div className="flights-card">
 
-            {/* Trip Type Toggle */}
             <div className="trip-type-toggle">
               {['roundtrip', 'oneway', 'multicity'].map(type => (
                 <button
@@ -140,7 +160,6 @@ export default function Flights() {
               ))}
             </div>
 
-            {/* From / To */}
             <div className="flights-row">
               <div className="flights-field">
                 <label className="flights-label">From <span className="req">*</span></label>
@@ -173,7 +192,6 @@ export default function Flights() {
               </div>
             </div>
 
-            {/* Dates */}
             <div className="flights-row">
               <div className="flights-field">
                 <label className="flights-label">Departure Date <span className="req">*</span></label>
@@ -199,7 +217,6 @@ export default function Flights() {
               )}
             </div>
 
-            {/* Passengers / Class */}
             <div className="flights-row">
               <div className="flights-field">
                 <label className="flights-label">Passengers</label>
@@ -220,7 +237,6 @@ export default function Flights() {
               </div>
             </div>
 
-            {/* Budget / Flexibility */}
             <div className="flights-row">
               <div className="flights-field">
                 <label className="flights-label">Total Budget <span className="req">*</span></label>
@@ -247,7 +263,6 @@ export default function Flights() {
               </div>
             </div>
 
-            {/* Preferences */}
             <div className="flights-field full-width">
               <label className="flights-label">Additional Preferences</label>
               <textarea
@@ -260,15 +275,20 @@ export default function Flights() {
               />
             </div>
 
-            <button className="flights-submit" onClick={handleSubmit} disabled={loading}>
-              {loading ? (
-                <span className="loading-text">
-                  <span className="spinner" /> Searching Flights...
-                </span>
-              ) : (
-                'Find My Flights'
-              )}
-            </button>
+            <div className="flights-form-actions">
+              <button className="flights-clear" onClick={handleClear}>
+                Clear Form
+              </button>
+              <button className="flights-submit" onClick={handleSubmit} disabled={loading}>
+                {loading ? (
+                  <span className="loading-text">
+                    <span className="spinner" /> Searching Flights...
+                  </span>
+                ) : (
+                  'Find My Flights'
+                )}
+              </button>
+            </div>
 
           </div>
         )}

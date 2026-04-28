@@ -437,3 +437,28 @@ select.activities-input option {
   border: 1px solid rgba(129, 236, 161, 0.22);
   border-radius: 6px;
 }
+
+/* ── Form Actions ── */
+.activities-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.activities-clear {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: 0.85rem 1.2rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.activities-clear:hover {
+  color: var(--text-main);
+  border-color: rgba(255, 255, 255, 0.25);
+}

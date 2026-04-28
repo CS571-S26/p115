@@ -1,20 +1,31 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { sendToOpenAI, createAccommodationPlanPrompt } from '../utils/openaiClient'
 import { saveChat } from '../utils/savedChats'
 import './Accommodations.css'
 
-export default function accommodation() {
-  const [formData, setFormData] = useState({
-    destination: '',
-    checkInDate: '',
-    checkOutDate: '',
-    budgetPerNight: '',
-    accommodationType: 'hotel',
-    groupSize: '1',
-    locationPreference: '',
-    neighborhoodVibe: '',
-    amenities: '',
-    preferences: ''
+const STORAGE_KEY = 'accommodations_form'
+
+const DEFAULT_FORM = {
+  destination: '',
+  checkInDate: '',
+  checkOutDate: '',
+  budgetPerNight: '',
+  accommodationType: 'hotel',
+  groupSize: '1',
+  locationPreference: '',
+  neighborhoodVibe: '',
+  amenities: '',
+  preferences: ''
+}
+
+export default function Accommodation() {
+  const [formData, setFormData] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY)
+      return saved ? JSON.parse(saved) : DEFAULT_FORM
+    } catch {
+      return DEFAULT_FORM
+    }
   })
   const [loading, setLoading]             = useState(false)
   const [result, setResult]               = useState('')
@@ -22,6 +33,12 @@ export default function accommodation() {
   const [showSave, setShowSave]           = useState(false)
   const [saveName, setSaveName]           = useState('')
   const [saveConfirmed, setSaveConfirmed] = useState(false)
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
+    } catch {}
+  }, [formData])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -67,6 +84,11 @@ export default function accommodation() {
     setSaveConfirmed(false)
   }
 
+  const handleClear = () => {
+    setFormData(DEFAULT_FORM)
+    sessionStorage.removeItem(STORAGE_KEY)
+  }
+
   return (
     <div className="accom-page">
       <div className="accom-container">
@@ -87,7 +109,6 @@ export default function accommodation() {
             </div>
             <div className="accom-result-body">{result}</div>
 
-            {/* ── Save panel ── */}
             <div className="result-save-panel">
               {saveConfirmed ? (
                 <span className="save-confirmed">✓ Saved — find it under Saved Results</span>
@@ -123,7 +144,6 @@ export default function accommodation() {
         {!result && (
           <div className="accom-card">
 
-            {/* Accommodation Type Toggle */}
             <div className="accom-type-toggle">
               {[
                 { value: 'hotel', label: 'Hotel' },
@@ -142,7 +162,6 @@ export default function accommodation() {
               ))}
             </div>
 
-            {/* Destination / Group Size */}
             <div className="accom-row">
               <div className="accom-field">
                 <label className="accom-label">Destination <span className="req">*</span></label>
@@ -168,7 +187,6 @@ export default function accommodation() {
               </div>
             </div>
 
-            {/* Dates */}
             <div className="accom-row">
               <div className="accom-field">
                 <label className="accom-label">Check-in <span className="req">*</span></label>
@@ -192,7 +210,6 @@ export default function accommodation() {
               </div>
             </div>
 
-            {/* Budget / Location */}
             <div className="accom-row">
               <div className="accom-field">
                 <label className="accom-label">Budget per Night <span className="req">*</span></label>
@@ -222,7 +239,6 @@ export default function accommodation() {
               </div>
             </div>
 
-            {/* Location Preference */}
             <div className="accom-field full-width">
               <label className="accom-label">Location Preference</label>
               <input
@@ -235,7 +251,6 @@ export default function accommodation() {
               />
             </div>
 
-            {/* Amenities */}
             <div className="accom-field full-width">
               <label className="accom-label">Must-Have Amenities</label>
               <input
@@ -248,7 +263,6 @@ export default function accommodation() {
               />
             </div>
 
-            {/* Additional Preferences */}
             <div className="accom-field full-width">
               <label className="accom-label">Additional Preferences</label>
               <textarea
@@ -261,15 +275,20 @@ export default function accommodation() {
               />
             </div>
 
-            <button className="accom-submit" onClick={handleSubmit} disabled={loading}>
-              {loading ? (
-                <span className="loading-text">
-                  <span className="spinner" /> Finding Accommodations...
-                </span>
-              ) : (
-                'Find My Stay'
-              )}
-            </button>
+            <div className="accom-form-actions">
+              <button className="accom-clear" onClick={handleClear}>
+                Clear Form
+              </button>
+              <button className="accom-submit" onClick={handleSubmit} disabled={loading}>
+                {loading ? (
+                  <span className="loading-text">
+                    <span className="spinner" /> Finding Accommodations...
+                  </span>
+                ) : (
+                  'Find My Stay'
+                )}
+              </button>
+            </div>
 
           </div>
         )}

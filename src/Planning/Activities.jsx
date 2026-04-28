@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { sendToOpenAI, createActivitiesPlanPrompt } from '../utils/openaiClient'
 import { saveChat } from '../utils/savedChats'
 import './activities.css'
@@ -16,17 +16,28 @@ const ACTIVITY_TYPES = [
   'Family-Friendly'
 ]
 
+const STORAGE_KEY = 'activities_form'
+
+const DEFAULT_FORM = {
+  destination: '',
+  travelDates: '',
+  duration: '',
+  budget: '',
+  groupType: 'solo',
+  pace: 'moderate',
+  activityTypes: [],
+  interests: '',
+  specialRequirements: ''
+}
+
 export default function Activities() {
-  const [formData, setFormData] = useState({
-    destination: '',
-    travelDates: '',
-    duration: '',
-    budget: '',
-    groupType: 'solo',
-    pace: 'moderate',
-    activityTypes: [],
-    interests: '',
-    specialRequirements: ''
+  const [formData, setFormData] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY)
+      return saved ? JSON.parse(saved) : DEFAULT_FORM
+    } catch {
+      return DEFAULT_FORM
+    }
   })
   const [loading, setLoading]             = useState(false)
   const [result, setResult]               = useState('')
@@ -34,6 +45,12 @@ export default function Activities() {
   const [showSave, setShowSave]           = useState(false)
   const [saveName, setSaveName]           = useState('')
   const [saveConfirmed, setSaveConfirmed] = useState(false)
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
+    } catch {}
+  }, [formData])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -88,6 +105,11 @@ export default function Activities() {
     setSaveConfirmed(false)
   }
 
+  const handleClear = () => {
+    setFormData(DEFAULT_FORM)
+    sessionStorage.removeItem(STORAGE_KEY)
+  }
+
   return (
     <div className="activities-page">
       <div className="activities-container">
@@ -108,7 +130,6 @@ export default function Activities() {
             </div>
             <div className="activities-result-body">{result}</div>
 
-            {/* ── Save panel ── */}
             <div className="result-save-panel">
               {saveConfirmed ? (
                 <span className="save-confirmed">✓ Saved — find it under Saved Results</span>
@@ -144,7 +165,6 @@ export default function Activities() {
         {!result && (
           <div className="activities-card">
 
-            {/* Destination / Dates */}
             <div className="activities-row">
               <div className="activities-field">
                 <label className="activities-label">Destination <span className="req">*</span></label>
@@ -173,7 +193,6 @@ export default function Activities() {
               </div>
             </div>
 
-            {/* Duration / Budget */}
             <div className="activities-row">
               <div className="activities-field">
                 <label className="activities-label">Trip Duration</label>
@@ -203,7 +222,6 @@ export default function Activities() {
               </div>
             </div>
 
-            {/* Group Type / Pace */}
             <div className="activities-row">
               <div className="activities-field">
                 <label className="activities-label">Group Type</label>
@@ -231,7 +249,6 @@ export default function Activities() {
               </div>
             </div>
 
-            {/* Activity Types */}
             <div className="activities-field full-width">
               <label className="activities-label">Activity Types <span className="label-hint">(select all that apply)</span></label>
               <div className="activity-chips">
@@ -247,7 +264,6 @@ export default function Activities() {
               </div>
             </div>
 
-            {/* Interests */}
             <div className="activities-field full-width">
               <label className="activities-label">Specific Interests</label>
               <textarea
@@ -260,7 +276,6 @@ export default function Activities() {
               />
             </div>
 
-            {/* Special Requirements */}
             <div className="activities-field full-width">
               <label className="activities-label">Special Requirements</label>
               <input
@@ -273,15 +288,20 @@ export default function Activities() {
               />
             </div>
 
-            <button className="activities-submit" onClick={handleSubmit} disabled={loading}>
-              {loading ? (
-                <span className="loading-text">
-                  <span className="spinner" /> Planning Activities...
-                </span>
-              ) : (
-                'Plan My Activities'
-              )}
-            </button>
+            <div className="activities-form-actions">
+              <button className="activities-clear" onClick={handleClear}>
+                Clear Form
+              </button>
+              <button className="activities-submit" onClick={handleSubmit} disabled={loading}>
+                {loading ? (
+                  <span className="loading-text">
+                    <span className="spinner" /> Planning Activities...
+                  </span>
+                ) : (
+                  'Plan My Activities'
+                )}
+              </button>
+            </div>
 
           </div>
         )}
