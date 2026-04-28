@@ -17,6 +17,30 @@ const FEATURES = [
   { icon: '⬡', title: 'Collaborate & Share', desc: 'Build your itinerary together with friends. Everyone votes, nobody argues.' },
 ]
 
+const PLANNING_TOOLS = [
+  { 
+    icon: '✈', 
+    title: 'Flights', 
+    path: '/flights', 
+    desc: 'Find the best flights for your journey',
+    img: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80'
+  },
+  { 
+    icon: '🏨', 
+    title: 'Accommodations', 
+    path: '/accommodations', 
+    desc: 'Discover perfect places to stay',
+    img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80'
+  },
+  { 
+    icon: '🎯', 
+    title: 'Activities', 
+    path: '/activities', 
+    desc: 'Explore experiences and adventures',
+    img: 'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800&q=80'
+  },
+]
+
 function Home({ message, setMessage }) {
   const navigate = useNavigate()
   const [input, setInput] = useState(message || '')
@@ -25,7 +49,7 @@ function Home({ message, setMessage }) {
     e.preventDefault()
     if (input.trim()) {
       setMessage(input)
-      navigate('/plan')
+      navigate('/flights')
     }
   }
 
@@ -45,16 +69,6 @@ function Home({ message, setMessage }) {
           </h1>
           <p className="home-sub">Tell us where you want to go — we'll handle the rest.</p>
 
-          <form className="home-search" onSubmit={handleSubmit}>
-            <span className="home-search-icon">✈</span>
-            <input
-              className="home-search-input"
-              placeholder="e.g. 10 days in Japan, love food and temples..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-            />
-            <button className="home-search-btn" type="submit">Plan my trip</button>
-          </form>
         </div>
 
         <div className="home-hero-destinations">
@@ -62,6 +76,29 @@ function Home({ message, setMessage }) {
             <div key={d.name} className="home-hero-chip">
               <img src={d.img} alt={d.name} />
               <span>{d.name}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── PLANNING TOOLS ── */}
+      <section className="home-section">
+        <p className="home-section-label">Plan Your Trip</p>
+        <h2 className="home-section-title">Everything you need,<br />one place.</h2>
+        <div className="home-planning-tools">
+          {PLANNING_TOOLS.map((tool) => (
+            <div
+              key={tool.title}
+              className="home-tool-card"
+              onClick={() => navigate(tool.path)}
+            >
+              <div className="home-tool-card-bg" style={{ backgroundImage: `url(${tool.img})` }} />
+              <div className="home-tool-card-overlay" />
+              <div className="home-tool-card-content">
+                <span className="home-tool-icon">{tool.icon}</span>
+                <h3>{tool.title}</h3>
+                <p>{tool.desc}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -107,7 +144,7 @@ function Home({ message, setMessage }) {
       <section className="home-cta">
         <h2>Ready to explore?</h2>
         <p>Your perfect itinerary is one prompt away.</p>
-        <button className="home-cta-btn" onClick={() => navigate('/plan')}>Start planning →</button>
+        <button className="home-cta-btn" onClick={() => navigate('/flights')}>Start planning →</button>
       </section>
 
     </div>
