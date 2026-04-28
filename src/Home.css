@@ -237,6 +237,88 @@
   margin: 0;
 }
 
+/* ── PLANNING TOOLS ── */
+.home-planning-tools {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .home-planning-tools {
+    grid-template-columns: 1fr;
+  }
+}
+
+.home-tool-card {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  min-height: 280px;
+  transition: transform 0.3s ease;
+}
+
+.home-tool-card:hover {
+  transform: translateY(-6px);
+}
+
+.home-tool-card-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s ease;
+}
+
+.home-tool-card:hover .home-tool-card-bg {
+  transform: scale(1.08);
+}
+
+.home-tool-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(14,14,14,0.92) 0%,
+    rgba(14,14,14,0.6) 40%,
+    rgba(14,14,14,0.3) 100%
+  );
+}
+
+.home-tool-card-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  min-height: 280px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.home-tool-icon {
+  display: inline-block;
+  font-size: 1.8rem;
+  color: #c9a96e;
+  margin-bottom: 0.8rem;
+}
+
+.home-tool-card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #f0ede6;
+  margin: 0 0 0.5rem;
+}
+
+.home-tool-card p {
+  font-size: 0.85rem;
+  color: rgba(240,237,230,0.6);
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* ── DESTINATIONS ── */
 .home-destinations {
   display: grid;
