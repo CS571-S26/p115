@@ -1,54 +1,35 @@
 /**
  * OpenAI API utilities for travel planning
- * Uses the OpenAI API key from environment variables
+ * PORTFOLIO EDITION - No API key required
+ * 
+ * This version displays a message directing users to the portfolio_edition
+ * branch for full API functionality.
  */
 
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY
-const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
+
+/**
+ * Check if API is configured
+ */
+export function isAPIConfigured() {
+  return !!OPENAI_API_KEY
+}
+
+/**
+ * Alert message for users without API access
+ */
+export function getNoAPIMessage() {
+  return 'To enable AI-powered travel planning, please clone the "portfolio_edition" branch and add your own OpenAI API key to the .env file.'
+}
 
 /**
  * Send a prompt to OpenAI and get a response
+ * PORTFOLIO EDITION: Shows alert instead of making API call
  */
 export async function sendToOpenAI(prompt, model = 'gpt-3.5-turbo', temperature = 0.7) {
-  if (!OPENAI_API_KEY) {
-    throw new Error('OpenAI API key is not configured. Please set VITE_OPENAI_API_KEY in your .env file.')
-  }
-
-  try {
-    const response = await fetch(OPENAI_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful travel planning assistant. You help users create detailed itineraries based on their preferences, budget, and travel dates.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature,
-        max_tokens: 2000
-      })
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error?.message || 'Failed to get response from OpenAI')
-    }
-
-    const data = await response.json()
-    return data.choices[0].message.content
-  } catch (error) {
-    console.error('OpenAI API Error:', error)
-    throw error
-  }
+  // Portfolio edition - no API key available
+  alert(getNoAPIMessage())
+  throw new Error('API not configured in portfolio edition')
 }
 
 /**

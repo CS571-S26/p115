@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { sendToOpenAI, createAccommodationPlanPrompt } from '../utils/openaiClient'
+import { sendToOpenAI, createAccommodationPlanPrompt, isAPIConfigured, getNoAPIMessage } from '../utils/openaiClient'
 import { saveChat } from '../utils/savedChats'
 import './Accommodations.css'
 
@@ -93,6 +93,12 @@ export default function Accommodation() {
   }
 
   const handleSubmit = async () => {
+    // Portfolio edition check - no API key required to run, but blocks API calls
+    if (!isAPIConfigured()) {
+      alert(getNoAPIMessage())
+      return
+    }
+
     setError('')
     setOptions([])
     setShowSave(false)

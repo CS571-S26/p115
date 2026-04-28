@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { sendToOpenAI, createActivitiesPlanPrompt } from '../utils/openaiClient'
+import { sendToOpenAI, createActivitiesPlanPrompt, isAPIConfigured, getNoAPIMessage } from '../utils/openaiClient'
 import { saveChat } from '../utils/savedChats'
 import './activities.css'
 
@@ -115,6 +115,12 @@ export default function Activities() {
   }
 
   const handleSubmit = async () => {
+    // Portfolio edition check - no API key required to run, but blocks API calls
+    if (!isAPIConfigured()) {
+      alert(getNoAPIMessage())
+      return
+    }
+
     setError('')
     setActivities([])
     setShowSave(false)

@@ -3,15 +3,16 @@ import { initializeApp } from "firebase/app"
 import { getFirestore } from "firebase/firestore"
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser } from "firebase/auth"
 
-// Firebase configuration from environment variables
+
+// Firebase Configuration - Hardcoded for portfolio edition
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  apiKey: "AIzaSyAZMFsxvFip2R6z8X60lulviU7rq8sqFUs",
+  authDomain: "ai-travel-planner-5dbd8.firebaseapp.com",
+  projectId: "ai-travel-planner-5dbd8",
+  storageBucket: "ai-travel-planner-5dbd8.firebasestorage.app",
+  messagingSenderId: "832860173062",
+  appId: "1:832860173062:web:eb8533ac6223d0069e2487",
+  measurementId: "G-KJFX5FJCYL"
 }
 
 // Initialize Firebase

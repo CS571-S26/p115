@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { sendToOpenAI, createFlightSearchPrompt } from '../utils/openaiClient'
+import { sendToOpenAI, createFlightSearchPrompt, isAPIConfigured, getNoAPIMessage } from '../utils/openaiClient'
 import { saveChat } from '../utils/savedChats'
 import './flights.css'
 
@@ -94,6 +94,12 @@ export default function Flights() {
   }
 
   const handleSubmit = async () => {
+    // Portfolio edition check - no API key required to run, but blocks API calls
+    if (!isAPIConfigured()) {
+      alert(getNoAPIMessage())
+      return
+    }
+
     setError('')
     setFlights([])
     setShowSave(false)
