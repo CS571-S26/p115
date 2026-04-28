@@ -3,6 +3,194 @@ import { useState, useEffect } from 'react'
 import { getSavedChats, deleteChat } from '../utils/savedChats'
 import './SavedChats.css'
 
+// ─── Badge → CSS class map (Flights) ────────────────────
+const FLIGHT_BADGE_CLASS = {
+  'Best value':      'fc-badge-best',
+  'Cheapest':        'fc-badge-cheap',
+  'Fastest':         'fc-badge-fast',
+  'Most convenient': 'fc-badge-conv',
+}
+
+// ─── Badge → CSS class map (Accommodations) ───────────
+const ACCOM_BADGE_CLASS = {
+  'Best value':      'ac-badge-best',
+  'Most luxurious':  'ac-badge-luxury',
+  'Best location':   'ac-badge-location',
+  'Hidden gem':      'ac-badge-gem',
+}
+
+// ─── Badge → CSS class map (Activities) ────────────────
+const ACTIVITY_BADGE_CLASS = {
+  'Must-do':         'ac-badge-mustdo',
+  'Hidden gem':      'ac-badge-hidden',
+  'Best for groups': 'ac-badge-groups',
+  'Budget pick':     'ac-badge-budget',
+}
+
+// ─── Flight card (matches Flights.jsx) ─────────────────
+function SavedFlightCard({ flight, index }) {
+  const badgeClass = FLIGHT_BADGE_CLASS[flight.badge] ?? 'fc-badge-best'
+
+  return (
+    <div className="fc-card" style={{ animationDelay: `${index * 90}ms` }}>
+      <div className="fc-header">
+        <div className="fc-header-left">
+          <span className={`fc-badge ${badgeClass}`}>{flight.badge}</span>
+          <p className="fc-airline">{flight.airline} · {flight.flightNumber}</p>
+          <p className="fc-meta">{flight.departure} → {flight.arrival} · {flight.duration}</p>
+          <p className="fc-meta">
+            {flight.stops === 0 ? 'Nonstop' : `${flight.stops} stop${flight.stops > 1 ? 's' : ''}`}
+          </p>
+        </div>
+
+        <div className="fc-price-block">
+          <p className="fc-price">${flight.estimatedPrice}</p>
+          <p className="fc-price-label">est. per person</p>
+          {!flight.withinBudget && (
+            <p className="fc-over-budget">over budget</p>
+          )}
+        </div>
+      </div>
+
+      <div className="fc-divider" />
+
+      <p className="fc-reason">{flight.reason}</p>
+
+      {flight.tip && (
+        <div className="fc-tip">
+          <span className="fc-tip-icon">&#9432;</span>
+          {flight.tip}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Accommodation card (matches accommodations.jsx) ─
+function SavedAccomCard({ option, index }) {
+  const badgeClass = ACCOM_BADGE_CLASS[option.badge] ?? 'ac-badge-best'
+  const stars = '★'.repeat(option.stars) + '☆'.repeat(5 - option.stars)
+
+  return (
+    <div className="ac-card" style={{ animationDelay: `${index * 90}ms` }}>
+      <div className="ac-header">
+        <div className="ac-header-left">
+          <span className={`ac-badge ${badgeClass}`}>{option.badge}</span>
+          <p className="ac-name">{option.name}</p>
+          <p className="ac-meta">{option.type} · {option.neighborhood}</p>
+          <p className="ac-meta">{stars} &nbsp;{option.stars}-star</p>
+        </div>
+
+        <div className="ac-price-block">
+          <p className="ac-price">${option.pricePerNight}</p>
+          <p className="ac-price-label">per night</p>
+          {!option.withinBudget && (
+            <p className="ac-over-budget">over budget</p>
+          )}
+        </div>
+      </div>
+
+      <div className="ac-divider" />
+
+      <p className="ac-reason">{option.reason}</p>
+
+      {option.tip && (
+        <div className="ac-tip">
+          <span className="ac-tip-icon">&#9432;</span>
+          {option.tip}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Activity card (matches Activities.jsx) ───────────
+function SavedActivityCard({ activity, index }) {
+  const badgeClass = ACTIVITY_BADGE_CLASS[activity.badge] ?? 'ac-badge-mustdo'
+
+  return (
+    <div className="ac-card" style={{ animationDelay: `${index * 90}ms` }}>
+      <div className="ac-header">
+        <div className="ac-header-left">
+          <span className={`ac-badge ${badgeClass}`}>{activity.badge}</span>
+          <p className="ac-name">{activity.name}</p>
+          <p className="ac-meta">{activity.category} · {activity.duration}</p>
+          <p className="ac-meta">Best time: {activity.bestTime}</p>
+        </div>
+        <div className="ac-cost-block">
+          <p className="ac-cost">${activity.estimatedCost}</p>
+          <p className="ac-cost-label">est. per person</p>
+        </div>
+      </div>
+
+      <div className="ac-divider" />
+
+      <ul className="ac-highlights">
+        {activity.highlights.map((h, i) => (
+          <li key={i}>{h}</li>
+        ))}
+      </ul>
+
+      <p className="ac-reason">{activity.reason}</p>
+
+      {activity.tip && (
+        <div className="ac-tip">
+          <span className="ac-tip-icon">&#9432;</span>
+          {activity.tip}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Render saved results based on type ──────────────
+function SavedResultContent({ result, type }) {
+  let items = []
+  
+  try {
+    items = typeof result === 'string' ? JSON.parse(result) : result
+  } catch {
+    return <div className="saved-result-text">{result}</div>
+  }
+
+  if (!Array.isArray(items)) {
+    items = [items]
+  }
+
+  if (items.length === 0) {
+    return <p className="saved-no-results">No results to display.</p>
+  }
+
+  switch (type) {
+    case 'flight':
+      return (
+        <div className="saved-results-grid">
+          {items.map((flight, i) => (
+            <SavedFlightCard key={i} flight={flight} index={i} />
+          ))}
+        </div>
+      )
+    case 'accommodation':
+      return (
+        <div className="saved-results-grid">
+          {items.map((option, i) => (
+            <SavedAccomCard key={i} option={option} index={i} />
+          ))}
+        </div>
+      )
+    case 'activity':
+      return (
+        <div className="saved-results-grid">
+          {items.map((activity, i) => (
+            <SavedActivityCard key={i} activity={activity} index={i} />
+          ))}
+        </div>
+      )
+    default:
+      return <div className="saved-result-text">{result}</div>
+  }
+}
+
 const TYPE_META = {
   flight:        { label: 'Flight',        icon: '✈', cls: 'badge-flight' },
   accommodation: { label: 'Accommodation', icon: '⌂', cls: 'badge-accom' },
@@ -77,7 +265,7 @@ export default function SavedChats() {
                   {/* ── Expanded body ── */}
                   {isExpanded && (
                     <div className="saved-card-body">
-                      <div className="saved-result-text">{chat.result}</div>
+                      <SavedResultContent result={chat.result} type={chat.type} />
 
                       <div className="saved-card-actions">
                         {isConfirm ? (

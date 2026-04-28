@@ -211,6 +211,20 @@
     border-radius: 2px;
   }
   
+  /* ── Formatted results grid ── */
+  .saved-results-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .saved-no-results {
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 1rem 0;
+  }
+  
   /* ── Card actions ── */
   .saved-card-actions {
     display: flex;
