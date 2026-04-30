@@ -54,7 +54,7 @@
     margin-bottom: 1rem;
   }
   
-  .saved-empty h3 {
+  .saved-empty h2 {
     font-family: 'Cormorant Garamond', serif;
     font-size: 1.5rem;
     color: var(--text-main);
@@ -100,10 +100,19 @@
     gap: 1rem;
     user-select: none;
     transition: background 0.15s;
+    width: 100%;
+    border: 0;
+    text-align: left;
+    background: transparent;
   }
   
   .saved-card-top:hover {
     background: rgba(255, 255, 255, 0.03);
+  }
+
+  .saved-card-top:focus-visible {
+    outline: 3px solid #d9b97e;
+    outline-offset: -3px;
   }
   
   .saved-card-left {

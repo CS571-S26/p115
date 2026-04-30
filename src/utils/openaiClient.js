@@ -26,7 +26,7 @@ export function getNoAPIMessage() {
  * Send a prompt to OpenAI and get a response
  * PORTFOLIO EDITION: Shows alert instead of making API call
  */
-export async function sendToOpenAI(prompt, model = 'gpt-3.5-turbo', temperature = 0.7) {
+export async function sendToOpenAI(_PROMPT, _MODEL = 'gpt-3.5-turbo', _TEMPERATURE = 0.7) {
   // Portfolio edition - no API key available
   alert(getNoAPIMessage())
   throw new Error('API not configured in portfolio edition')

@@ -87,7 +87,9 @@ function Register({ onLogin }){
         </header>
 
         <form className="auth-form" onSubmit={handleSubmit}>
+          <label htmlFor="register-email" className="auth-label">Email address</label>
           <input
+            id="register-email"
             className="auth-input"
             placeholder="Email"
             type="email"
@@ -97,7 +99,9 @@ function Register({ onLogin }){
           />
           {emailError && <div className="text-danger" style={{ fontSize: '0.85rem' }}>{emailError}</div>}
 
+          <label htmlFor="register-password" className="auth-label">Password</label>
           <input
+            id="register-password"
             className="auth-input"
             placeholder="Password"
             type="password"
@@ -105,7 +109,9 @@ function Register({ onLogin }){
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <label htmlFor="register-confirm-password" className="auth-label">Confirm password</label>
           <input
+            id="register-confirm-password"
             className="auth-input"
             placeholder="Confirm Password"
             type="password"

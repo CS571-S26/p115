@@ -97,7 +97,9 @@ export default function Activities() {
   useEffect(() => {
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
-    } catch {}
+    } catch {
+      // Ignore storage write failures (private mode / quota limits)
+    }
   }, [formData])
 
   const handleChange = (e) => {
@@ -204,21 +206,21 @@ export default function Activities() {
                   onKeyDown={e => e.key === 'Enter' && handleSave()}
                   autoFocus
                 />
-                <button className="save-confirm-btn" onClick={handleSave} disabled={!saveName.trim()}>
+                <button type="button" className="save-confirm-btn" onClick={handleSave} disabled={!saveName.trim()}>
                   Save
                 </button>
-                <button className="save-cancel-btn" onClick={() => setShowSave(false)}>
+                <button type="button" className="save-cancel-btn" onClick={() => setShowSave(false)}>
                   Cancel
                 </button>
               </div>
             ) : (
-              <button className="save-trigger-btn" onClick={() => setShowSave(true)}>
+              <button type="button" className="save-trigger-btn" onClick={() => setShowSave(true)}>
                 🔖 Save Result
               </button>
             )}
           </div>
 
-          <button className="activities-reset" onClick={handleReset}>
+          <button type="button" className="activities-reset" onClick={handleReset}>
             ← Plan Again
           </button>
         </div>
@@ -315,6 +317,7 @@ export default function Activities() {
                   {['relaxed', 'moderate', 'packed'].map(pace => (
                     <button
                       key={pace}
+                      type="button"
                       className={`toggle-btn ${formData.pace === pace ? 'active' : ''}`}
                       onClick={() => setFormData(prev => ({ ...prev, pace }))}
                     >
@@ -331,6 +334,7 @@ export default function Activities() {
                 {ACTIVITY_TYPES.map(type => (
                   <button
                     key={type}
+                    type="button"
                     className={`activity-chip ${formData.activityTypes.includes(type) ? 'active' : ''}`}
                     onClick={() => toggleActivityType(type)}
                   >
@@ -365,10 +369,10 @@ export default function Activities() {
             </div>
 
             <div className="activities-form-actions">
-              <button className="activities-clear" onClick={handleClear}>
+              <button type="button" className="activities-clear" onClick={handleClear}>
                 Clear Form
               </button>
-              <button className="activities-submit" onClick={handleSubmit} disabled={loading}>
+              <button type="button" className="activities-submit" onClick={handleSubmit} disabled={loading}>
                 {loading ? (
                   <span className="loading-text">
                     <span className="spinner" /> Planning Activities...

@@ -257,6 +257,10 @@
   cursor: pointer;
   min-height: 280px;
   transition: transform 0.3s ease;
+  border: 1px solid transparent;
+  padding: 0;
+  width: 100%;
+  text-align: left;
 }
 
 .home-tool-card:hover {
@@ -332,6 +336,11 @@
   overflow: hidden;
   aspect-ratio: 3/4;
   cursor: pointer;
+  border: 1px solid transparent;
+  padding: 0;
+  width: 100%;
+  background: transparent;
+  text-align: left;
 }
 
 .home-dest-card img {
@@ -410,4 +419,11 @@
 
 .home-cta-btn:hover {
   opacity: 0.8;
+}
+
+.home-tool-card:focus-visible,
+.home-dest-card:focus-visible,
+.home-cta-btn:focus-visible {
+  outline: 3px solid #d9b97e;
+  outline-offset: 3px;
 }

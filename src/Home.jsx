@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Home.css'
 
@@ -41,17 +40,8 @@ const PLANNING_TOOLS = [
   },
 ]
 
-function Home({ message, setMessage }) {
+function Home({ setMessage }) {
   const navigate = useNavigate()
-  const [input, setInput] = useState(message || '')
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (input.trim()) {
-      setMessage(input)
-      navigate('/flights')
-    }
-  }
 
   return (
     <div className="home">
@@ -87,10 +77,12 @@ function Home({ message, setMessage }) {
         <h2 className="home-section-title">Everything you need,<br />one place.</h2>
         <div className="home-planning-tools">
           {PLANNING_TOOLS.map((tool) => (
-            <div
+            <button
               key={tool.title}
               className="home-tool-card"
+              type="button"
               onClick={() => navigate(tool.path)}
+              aria-label={`Open ${tool.title} planner`}
             >
               <div className="home-tool-card-bg" style={{ backgroundImage: `url(${tool.img})` }} />
               <div className="home-tool-card-overlay" />
@@ -99,7 +91,7 @@ function Home({ message, setMessage }) {
                 <h3>{tool.title}</h3>
                 <p>{tool.desc}</p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </section>
@@ -125,17 +117,19 @@ function Home({ message, setMessage }) {
         <h2 className="home-section-title">Popular destinations.</h2>
         <div className="home-destinations">
           {DESTINATIONS.map((d) => (
-            <div
+            <button
               key={d.name}
               className="home-dest-card"
-              onClick={() => { setInput(`Plan a trip to ${d.name}`); navigate('/plan') }}
+              type="button"
+              onClick={() => { setMessage(`Plan a trip to ${d.name}`); navigate('/flights') }}
+              aria-label={`Plan a trip to ${d.name}, ${d.country}`}
             >
               <img src={d.img} alt={d.name} />
               <div className="home-dest-info">
                 <span className="home-dest-name">{d.name}</span>
                 <span className="home-dest-country">{d.country}</span>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </section>

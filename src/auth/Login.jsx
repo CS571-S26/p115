@@ -40,7 +40,9 @@ function Login({ onLogin }){
         </header>
 
         <form className="auth-form" onSubmit={handleSubmit}>
+          <label htmlFor="login-email" className="auth-label">Email address</label>
           <input
+            id="login-email"
             className="auth-input"
             placeholder="Email"
             type="email"
@@ -49,7 +51,9 @@ function Login({ onLogin }){
             required
           />
 
+          <label htmlFor="login-password" className="auth-label">Password</label>
           <input
+            id="login-password"
             className="auth-input"
             placeholder="Password"
             type="password"

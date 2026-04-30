@@ -84,7 +84,9 @@ export default function Accommodation() {
   useEffect(() => {
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
-    } catch {}
+    } catch {
+      // Ignore storage write failures (private mode / quota limits)
+    }
   }, [formData])
 
   const handleChange = (e) => {
@@ -182,21 +184,21 @@ export default function Accommodation() {
                   onKeyDown={e => e.key === 'Enter' && handleSave()}
                   autoFocus
                 />
-                <button className="save-confirm-btn" onClick={handleSave} disabled={!saveName.trim()}>
+                <button type="button" className="save-confirm-btn" onClick={handleSave} disabled={!saveName.trim()}>
                   Save
                 </button>
-                <button className="save-cancel-btn" onClick={() => setShowSave(false)}>
+                <button type="button" className="save-cancel-btn" onClick={() => setShowSave(false)}>
                   Cancel
                 </button>
               </div>
             ) : (
-              <button className="save-trigger-btn" onClick={() => setShowSave(true)}>
+              <button type="button" className="save-trigger-btn" onClick={() => setShowSave(true)}>
                 🔖 Save Result
               </button>
             )}
           </div>
 
-          <button className="accom-reset" onClick={handleReset}>
+          <button type="button" className="accom-reset" onClick={handleReset}>
             ← Search Again
           </button>
         </div>
@@ -228,6 +230,7 @@ export default function Accommodation() {
             ].map(type => (
               <button
                 key={type.value}
+                type="button"
                 className={`toggle-btn ${formData.accommodationType === type.value ? 'active' : ''}`}
                 onClick={() => setFormData(prev => ({ ...prev, accommodationType: type.value }))}
               >
@@ -350,10 +353,10 @@ export default function Accommodation() {
           </div>
 
           <div className="accom-form-actions">
-            <button className="accom-clear" onClick={handleClear}>
+            <button type="button" className="accom-clear" onClick={handleClear}>
               Clear Form
             </button>
-            <button className="accom-submit" onClick={handleSubmit} disabled={loading}>
+            <button type="button" className="accom-submit" onClick={handleSubmit} disabled={loading}>
               {loading ? (
                 <span className="loading-text">
                   <span className="spinner" /> Finding Accommodations...

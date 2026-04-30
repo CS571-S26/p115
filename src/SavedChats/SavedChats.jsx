@@ -1,5 +1,5 @@
 // src/SavedChats/SavedChats.jsx
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { getSavedChats, deleteChat } from '../utils/savedChats'
 import './SavedChats.css'
 
@@ -205,11 +205,9 @@ function formatDate(iso) {
 }
 
 export default function SavedChats() {
-  const [chats, setChats]             = useState([])
+  const [chats, setChats]             = useState(() => getSavedChats())
   const [expandedId, setExpandedId]   = useState(null)
   const [confirmId, setConfirmId]     = useState(null)
-
-  useEffect(() => { setChats(getSavedChats()) }, [])
 
   const handleDelete = (id) => {
     deleteChat(id)
@@ -232,7 +230,7 @@ export default function SavedChats() {
         {chats.length === 0 ? (
           <div className="saved-empty">
             <div className="saved-empty-icon">🗂</div>
-            <h3>Nothing saved yet</h3>
+            <h2>Nothing saved yet</h2>
             <p>
               After receiving a recommendation on any planning page, click{' '}
               <strong>Save Result</strong> to store it here.
@@ -249,7 +247,7 @@ export default function SavedChats() {
                 <div key={chat.id} className={`saved-card ${isExpanded ? 'expanded' : ''}`}>
 
                   {/* ── Clickable header row ── */}
-                  <div className="saved-card-top" onClick={() => toggle(chat.id)}>
+                  <button type="button" className="saved-card-top" onClick={() => toggle(chat.id)}>
                     <div className="saved-card-left">
                       <span className={`saved-badge ${meta.cls}`}>
                         {meta.icon} {meta.label}
@@ -260,7 +258,7 @@ export default function SavedChats() {
                       <span className="saved-card-date">{formatDate(chat.savedAt)}</span>
                       <span className={`saved-chevron ${isExpanded ? 'open' : ''}`}>›</span>
                     </div>
-                  </div>
+                  </button>
 
                   {/* ── Expanded body ── */}
                   {isExpanded && (
@@ -271,15 +269,15 @@ export default function SavedChats() {
                         {isConfirm ? (
                           <div className="saved-confirm-row">
                             <span className="saved-confirm-label">Delete this result?</span>
-                            <button className="saved-btn-yes" onClick={() => handleDelete(chat.id)}>
+                            <button type="button" className="saved-btn-yes" onClick={() => handleDelete(chat.id)}>
                               Yes, delete
                             </button>
-                            <button className="saved-btn-no" onClick={() => setConfirmId(null)}>
+                            <button type="button" className="saved-btn-no" onClick={() => setConfirmId(null)}>
                               Cancel
                             </button>
                           </div>
                         ) : (
-                          <button className="saved-btn-delete" onClick={() => setConfirmId(chat.id)}>
+                          <button type="button" className="saved-btn-delete" onClick={() => setConfirmId(chat.id)}>
                             🗑 Delete
                           </button>
                         )}
